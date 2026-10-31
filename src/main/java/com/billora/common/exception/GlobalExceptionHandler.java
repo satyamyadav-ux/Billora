@@ -6,10 +6,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -35,9 +36,26 @@ public class GlobalExceptionHandler {
         return "error";
     }
 
+    @ExceptionHandler(BusinessException.class)
+    public Object handleBusinessException(BusinessException ex, HttpServletRequest request, Model model) {
+        log.warn("Business rule violation: {}", ex.getMessage());
+        if (isApiRequest(request)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(ApiResponse.error(ex.getMessage()));
+        }
+        model.addAttribute("status", 400);
+        model.addAttribute("error", "Bad Request");
+        model.addAttribute("message", ex.getMessage());
+        return "error";
+    }
+
     @ExceptionHandler(Exception.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public Object handleGenericException(Exception ex, HttpServletRequest request, Model model) {
+    public Object handleGenericException(Exception ex, HttpServletRequest request, Model model) throws Exception {
+        // Allow Spring Security exceptions to pass through to Security filter chain
+        if (ex instanceof AccessDeniedException || ex instanceof AuthenticationException) {
+            throw ex;
+        }
+
         log.error("Unhandled exception: ", ex);
         if (isApiRequest(request)) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
