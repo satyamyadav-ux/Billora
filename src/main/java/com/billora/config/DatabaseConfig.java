@@ -23,10 +23,32 @@ public class DatabaseConfig {
     @Primary
     public DataSource dataSource(DataSourceProperties properties) {
         String databaseUrl = System.getenv("DATABASE_URL");
-        if (databaseUrl != null && !databaseUrl.isBlank() &&
-                (databaseUrl.startsWith("postgres://") || databaseUrl.startsWith("postgresql://"))) {
-            try {
-                log.info("Detected Render/Cloud DATABASE_URL, configuring Hikari JDBC parameters...");
+        if (databaseUrl != null && !databaseUrl.isBlank()) {
+            if (databaseUrl.startsWith("jdbc:postgresql://")) {
+                try {
+                    log.info("Detected direct JDBC DATABASE_URL, configuring Hikari pool...");
+                    HikariConfig config = new HikariConfig();
+                    config.setPoolName("BilloraRenderHikariCP");
+                    config.setDriverClassName("org.postgresql.Driver");
+                    config.setJdbcUrl(databaseUrl);
+                    if (properties.getUsername() != null && !properties.getUsername().isBlank()) {
+                        config.setUsername(properties.getUsername());
+                    }
+                    if (properties.getPassword() != null && !properties.getPassword().isBlank()) {
+                        config.setPassword(properties.getPassword());
+                    }
+                    config.setMaximumPoolSize(10);
+                    config.setMinimumIdle(2);
+                    config.setIdleTimeout(300000);
+                    config.setConnectionTimeout(20000);
+                    config.setMaxLifetime(1200000);
+                    return new HikariDataSource(config);
+                } catch (Exception ex) {
+                    log.error("Failed to configure from JDBC DATABASE_URL: {}", ex.getMessage());
+                }
+            } else if (databaseUrl.startsWith("postgres://") || databaseUrl.startsWith("postgresql://")) {
+                try {
+                    log.info("Detected Render/Cloud DATABASE_URL, configuring Hikari JDBC parameters...");
                 URI uri = new URI(databaseUrl);
                 String host = uri.getHost();
                 int port = uri.getPort() != -1 ? uri.getPort() : 5432;
