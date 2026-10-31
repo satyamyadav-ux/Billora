@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/head :: head('System Settings')}">
+    <title>Billora - Settings</title>
+</head>
+<body>
+<div class="dashboard-wrapper">
+    <aside th:replace="~{fragments/sidebar :: sidebar(${activePage})}"></aside>
+    <div class="dashboard-main">
+        <header th:replace="~{fragments/topbar :: topbar}"></header>
+
+        <main class="dashboard-content">
+            <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+                <div>
+                    <h2 class="h3 fw-bold mb-1">System &amp; Environment Settings</h2>
+                    <p class="text-muted small mb-0">Stack verification, database connectivity, and runtime environment specifications.</p>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-lg-6">
+                    <div class="billora-card p-4">
+                        <h5 class="fw-bold mb-3 d-flex align-items-center gap-2">
+                            <i class="bi bi-hdd-network text-primary"></i>
+                            <span>Database Configuration</span>
+                        </h5>
+                        <ul class="list-group list-group-flush small">
+                            <li class="list-group-item d-flex justify-content-between px-0 py-2">
+                                <span class="text-muted">Engine:</span>
+                                <span class="fw-semibold text-dark">PostgreSQL 16.15</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between px-0 py-2">
+                                <span class="text-muted">Database Name:</span>
+                                <span class="fw-semibold text-dark font-monospace">billora_db</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between px-0 py-2">
+                                <span class="text-muted">Port / Host:</span>
+                                <span class="fw-semibold text-dark font-monospace">localhost:5432</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between px-0 py-2">
+                                <span class="text-muted">Connection Pool:</span>
+                                <span class="fw-semibold text-dark font-monospace">HikariCP (Max 10)</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between px-0 py-2">
+                                <span class="text-muted">Status:</span>
+                                <span class="badge bg-success-subtle text-success border border-success-subtle">Connected &amp; Ready</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="billora-card p-4">
+                        <h5 class="fw-bold mb-3 d-flex align-items-center gap-2">
+                            <i class="bi bi-stack text-success"></i>
+                            <span>Runtime Environment</span>
+                        </h5>
+                        <ul class="list-group list-group-flush small">
+                            <li class="list-group-item d-flex justify-content-between px-0 py-2">
+                                <span class="text-muted">Java Runtime:</span>
+                                <span class="fw-semibold text-dark">Java 21 LTS (Oracle / HotSpot)</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between px-0 py-2">
+                                <span class="text-muted">Framework:</span>
+                                <span class="fw-semibold text-dark">Spring Boot 3.3.5</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between px-0 py-2">
+                                <span class="text-muted">Template Engine:</span>
+                                <span class="fw-semibold text-dark">Thymeleaf 3 + SpringSecurity6</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between px-0 py-2">
+                                <span class="text-muted">UI Framework:</span>
+                                <span class="fw-semibold text-dark">Bootstrap 5.3.3 + Custom CSS</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between px-0 py-2">
+                                <span class="text-muted">Security:</span>
+                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle">Spring Security Foundation</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer th:replace="~{fragments/footer :: footer}"></footer>
+    </div>
+</div>
+<div th:replace="~{fragments/scripts :: scripts}"></div>
+</body>
+</html>

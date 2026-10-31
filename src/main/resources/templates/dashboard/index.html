@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/head :: head('Dashboard Overview')}">
+    <title>Billora - Dashboard</title>
+</head>
+<body>
+<div class="dashboard-wrapper">
+    <!-- Common Sidebar -->
+    <aside th:replace="~{fragments/sidebar :: sidebar(${activePage})}"></aside>
+
+    <!-- Main Content Shell -->
+    <div class="dashboard-main">
+        <!-- Common Top Navigation -->
+        <header th:replace="~{fragments/topbar :: topbar}"></header>
+
+        <!-- Dashboard Body Content -->
+        <main class="dashboard-content">
+            <!-- Page Header / Breadcrumb -->
+            <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+                <div>
+                    <h2 class="h3 fw-bold mb-1">Subscription Overview</h2>
+                    <p class="text-muted small mb-0">Live billing metrics, recurring revenue analytics, and recent subscriber activity.</p>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <button class="btn btn-soft btn-sm px-3 py-2 d-flex align-items-center gap-2" onclick="location.reload()">
+                        <i class="bi bi-arrow-clockwise"></i>
+                        <span>Refresh Metrics</span>
+                    </button>
+                    <a th:href="@{/dashboard/subscriptions}" class="btn btn-primary-billora btn-sm px-3 py-2 d-flex align-items-center gap-2">
+                        <i class="bi bi-plus-lg"></i>
+                        <span>New Subscription</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- KPI Metric Cards Grid -->
+            <div class="row g-3 mb-4">
+                <!-- MRR Card -->
+                <div class="col-sm-6 col-xl-3">
+                    <div class="p-4 billora-card card-gradient-top h-100">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <span class="text-muted small fw-semibold text-uppercase">Monthly Recurring (MRR)</span>
+                            <div class="stat-icon-wrapper stat-icon-indigo">
+                                <i class="bi bi-currency-dollar"></i>
+                            </div>
+                        </div>
+                        <h3 class="fw-bold mb-2 text-dark" th:text="${currencySymbol} + ${#numbers.formatDecimal(summary.monthlyRecurringRevenue, 1, 'COMMA', 2, 'POINT')}">$48,290.00</h3>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="stat-change-pill stat-change-up">
+                                <i class="bi bi-arrow-up-right"></i>
+                                <span th:text="${summary.mrrGrowthRatePercentage} + '%'">+18.6%</span>
+                            </span>
+                            <span class="text-muted small">vs last month</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ARR Card -->
+                <div class="col-sm-6 col-xl-3">
+                    <div class="p-4 billora-card h-100">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <span class="text-muted small fw-semibold text-uppercase">Annualized (ARR)</span>
+                            <div class="stat-icon-wrapper stat-icon-cyan">
+                                <i class="bi bi-calendar2-check"></i>
+                            </div>
+                        </div>
+                        <h3 class="fw-bold mb-2 text-dark" th:text="${currencySymbol} + ${#numbers.formatDecimal(summary.annualRecurringRevenue, 1, 'COMMA', 2, 'POINT')}">$579,480.00</h3>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="stat-change-pill stat-change-up">
+                                <i class="bi bi-arrow-up-right"></i> 12.4%
+                            </span>
+                            <span class="text-muted small">run-rate estimate</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Subscriptions Card -->
+                <div class="col-sm-6 col-xl-3">
+                    <div class="p-4 billora-card h-100">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <span class="text-muted small fw-semibold text-uppercase">Active Subscribers</span>
+                            <div class="stat-icon-wrapper stat-icon-emerald">
+                                <i class="bi bi-people"></i>
+                            </div>
+                        </div>
+                        <h3 class="fw-bold mb-2 text-dark" th:text="${#numbers.formatInteger(summary.totalActiveSubscriptions, 1, 'COMMA')}">1,482</h3>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="stat-change-pill stat-change-up">
+                                <i class="bi bi-arrow-up-right"></i> +34
+                            </span>
+                            <span class="text-muted small">new this week</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Net Churn Rate Card -->
+                <div class="col-sm-6 col-xl-3">
+                    <div class="p-4 billora-card h-100">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <span class="text-muted small fw-semibold text-uppercase">Net Churn Rate</span>
+                            <div class="stat-icon-wrapper stat-icon-amber">
+                                <i class="bi bi-pie-chart"></i>
+                            </div>
+                        </div>
+                        <h3 class="fw-bold mb-2 text-dark" th:text="${summary.churnRatePercentage} + '%'">1.42%</h3>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="stat-change-pill stat-change-up">
+                                <i class="bi bi-shield-check"></i> Healthy
+                            </span>
+                            <span class="text-muted small">&lt; 2.0% SaaS benchmark</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Action & Stack Status Row -->
+            <div class="row g-3 mb-4">
+                <div class="col-lg-8">
+                    <div class="p-4 billora-card">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <div>
+                                <h5 class="fw-bold mb-1">Hackathon Foundation Milestones</h5>
+                                <p class="text-muted small mb-0">Current status of configured modules &amp; infrastructure.</p>
+                            </div>
+                            <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-1 rounded-pill">Foundation Ready</span>
+                        </div>
+                        <div class="row g-3 pt-2">
+                            <div class="col-sm-6 col-md-3">
+                                <div class="p-3 bg-light rounded-3 text-center border">
+                                    <i class="bi bi-database-check fs-3 text-primary mb-1"></i>
+                                    <div class="fw-bold text-dark small">PostgreSQL 16</div>
+                                    <span class="badge bg-success text-white" style="font-size: 0.68rem;">Connected</span>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-md-3">
+                                <div class="p-3 bg-light rounded-3 text-center border">
+                                    <i class="bi bi-cpu fs-3 text-success mb-1"></i>
+                                    <div class="fw-bold text-dark small">Java 21 LTS</div>
+                                    <span class="badge bg-success text-white" style="font-size: 0.68rem;">Active</span>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-md-3">
+                                <div class="p-3 bg-light rounded-3 text-center border">
+                                    <i class="bi bi-shield-check fs-3 text-info mb-1"></i>
+                                    <div class="fw-bold text-dark small">Spring Boot 3.3</div>
+                                    <span class="badge bg-success text-white" style="font-size: 0.68rem;">Active</span>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-md-3">
+                                <div class="p-3 bg-light rounded-3 text-center border">
+                                    <i class="bi bi-layout-sidebar fs-3 text-warning mb-1"></i>
+                                    <div class="fw-bold text-dark small">Thymeleaf + BS5</div>
+                                    <span class="badge bg-success text-white" style="font-size: 0.68rem;">Modular UI</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="p-4 billora-card h-100 d-flex flex-column justify-content-between">
+                        <div>
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <h6 class="fw-bold mb-0">Pending Invoices</h6>
+                                <span class="badge bg-warning-subtle text-warning border border-warning-subtle" th:text="${summary.pendingInvoicesCount} + ' Open'">8 Open</span>
+                            </div>
+                            <div class="display-6 fw-bold text-dark mb-1" th:text="${currencySymbol} + ${#numbers.formatDecimal(summary.pendingInvoicesAmount, 1, 'COMMA', 2, 'POINT')}">$3,420.00</div>
+                            <p class="text-muted small">Scheduled for automatic dunning retry within 48 hours.</p>
+                        </div>
+                        <a th:href="@{/dashboard/invoices}" class="btn btn-outline-secondary btn-sm w-100 py-2">
+                            Manage All Invoices <i class="bi bi-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Subscriptions Table -->
+            <div class="billora-card">
+                <div class="p-4 border-bottom d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3">
+                    <div>
+                        <h5 class="fw-bold mb-1">Recent Subscriptions</h5>
+                        <p class="text-muted small mb-0">Real-time stream of newly activated and trialing customer plans.</p>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <a th:href="@{/dashboard/subscriptions}" class="btn btn-soft btn-sm px-3 py-1">View All</a>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-billora align-middle">
+                        <thead>
+                            <tr>
+                                <th>Subscription ID</th>
+                                <th>Customer</th>
+                                <th>Plan</th>
+                                <th>Amount / Cycle</th>
+                                <th>Status</th>
+                                <th>Next Billing</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="sub : ${summary.recentSubscriptions}">
+                                <td class="fw-bold text-primary font-monospace small" th:text="${sub.id}">SUB-8492</td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="user-avatar" style="width: 32px; height: 32px; font-size: 0.75rem;" th:text="${sub.customerAvatar}">AT</div>
+                                        <div>
+                                            <div class="fw-semibold text-dark" th:text="${sub.customerName}">Acme Technologies</div>
+                                            <div class="text-muted small" style="font-size: 0.75rem;" th:text="${sub.customerEmail}">billing@acmetech.io</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-light text-dark border fw-medium" th:text="${sub.planName}">Enterprise Tier</span>
+                                </td>
+                                <td>
+                                    <div class="fw-bold text-dark" th:text="${currencySymbol} + ${#numbers.formatDecimal(sub.amount, 1, 'COMMA', 2, 'POINT')}">$1,249.00</div>
+                                    <span class="text-muted small" th:text="'/' + ${sub.billingCycle.label}">/Annually</span>
+                                </td>
+                                <td>
+                                    <span th:class="${sub.status.badgeClass}" th:text="${sub.status.displayName}">Active</span>
+                                </td>
+                                <td>
+                                    <span class="text-muted small" th:text="${sub.nextBillingDate}">2026-10-16</span>
+                                </td>
+                                <td class="text-end">
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-light border rounded-circle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width: 32px; height: 32px; padding: 0;">
+                                            <i class="bi bi-three-dots-vertical"></i>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3 small">
+                                            <li><a class="dropdown-item py-2" th:href="@{/dashboard/subscriptions}"><i class="bi bi-eye text-primary me-2"></i>View Details</a></li>
+                                            <li><a class="dropdown-item py-2" th:href="@{/dashboard/invoices}"><i class="bi bi-receipt text-warning me-2"></i>Invoice History</a></li>
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li><a class="dropdown-item py-2 text-danger" href="#"><i class="bi bi-pause-circle me-2"></i>Pause Plan</a></li>
+                                        </ul>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+
+        <!-- Common Footer -->
+        <footer th:replace="~{fragments/footer :: footer}"></footer>
+    </div>
+</div>
+
+<!-- Scripts Fragment -->
+<div th:replace="~{fragments/scripts :: scripts}"></div>
+</body>
+</html>

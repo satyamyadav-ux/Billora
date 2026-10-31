@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/head :: head('Customers Directory')}">
+    <title>Billora - Customers</title>
+</head>
+<body>
+<div class="dashboard-wrapper">
+    <aside th:replace="~{fragments/sidebar :: sidebar(${activePage})}"></aside>
+    <div class="dashboard-main">
+        <header th:replace="~{fragments/topbar :: topbar}"></header>
+
+        <main class="dashboard-content">
+            <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+                <div>
+                    <h2 class="h3 fw-bold mb-1">Customer Accounts</h2>
+                    <p class="text-muted small mb-0">Subscriber accounts, billing contacts, payment methods, and usage.</p>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <button class="btn btn-primary-billora btn-sm px-3 py-2 d-flex align-items-center gap-2">
+                        <i class="bi bi-person-plus"></i>
+                        <span>Add Customer</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="billora-card p-4 text-center py-5">
+                <div class="stat-icon-wrapper stat-icon-emerald mx-auto mb-3" style="width: 60px; height: 60px; font-size: 1.75rem;">
+                    <i class="bi bi-people-fill"></i>
+                </div>
+                <h5 class="fw-bold">Customer Management Module Ready</h5>
+                <p class="text-muted small max-w-md mx-auto mb-4">
+                    The package <code>com.billora.modules.customer</code> is mapped to PostgreSQL ready for subscriber entities, payment methods, and multi-tenant organizations.
+                </p>
+                <div class="d-flex justify-content-center gap-2">
+                    <a th:href="@{/dashboard}" class="btn btn-primary-billora btn-sm">Return to Overview</a>
+                </div>
+            </div>
+        </main>
+        <footer th:replace="~{fragments/footer :: footer}"></footer>
+    </div>
+</div>
+<div th:replace="~{fragments/scripts :: scripts}"></div>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/head :: head('Subscription Plans')}">
+    <title>Billora - Subscriptions</title>
+</head>
+<body>
+<div class="dashboard-wrapper">
+    <aside th:replace="~{fragments/sidebar :: sidebar(${activePage})}"></aside>
+    <div class="dashboard-main">
+        <header th:replace="~{fragments/topbar :: topbar}"></header>
+
+        <main class="dashboard-content">
+            <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+                <div>
+                    <h2 class="h3 fw-bold mb-1">Subscriptions Management</h2>
+                    <p class="text-muted small mb-0">Browse and manage active subscriber accounts, pricing tiers, and renewal schedules.</p>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <button class="btn btn-primary-billora btn-sm px-3 py-2 d-flex align-items-center gap-2">
+                        <i class="bi bi-plus-lg"></i>
+                        <span>Create Subscription</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Subscriptions Table Card -->
+            <div class="billora-card">
+                <div class="p-3 border-bottom d-flex flex-wrap gap-2 align-items-center justify-content-between">
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-sm btn-primary">All (1,482)</button>
+                        <button class="btn btn-sm btn-light border">Active (1,390)</button>
+                        <button class="btn btn-sm btn-light border">Trialing (64)</button>
+                        <button class="btn btn-sm btn-light border">Past Due (28)</button>
+                    </div>
+                    <span class="text-muted small">PostgreSQL module: <code>com.billora.modules.subscription</code></span>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-billora align-middle">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Customer</th>
+                                <th>Plan</th>
+                                <th>Billing Cycle</th>
+                                <th>Recurring Amount</th>
+                                <th>Status</th>
+                                <th>Next Billing</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="sub : ${subscriptions}">
+                                <td class="fw-bold text-primary font-monospace small" th:text="${sub.id}">SUB-8492</td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="user-avatar" style="width: 30px; height: 30px; font-size: 0.75rem;" th:text="${sub.customerAvatar}">AT</div>
+                                        <span class="fw-semibold text-dark" th:text="${sub.customerName}">Acme</span>
+                                    </div>
+                                </td>
+                                <td><span class="badge bg-light text-dark border" th:text="${sub.planName}">Enterprise</span></td>
+                                <td th:text="${sub.billingCycle.label}">Monthly</td>
+                                <td class="fw-bold text-dark" th:text="${currencySymbol} + ${#numbers.formatDecimal(sub.amount, 1, 'COMMA', 2, 'POINT')}">$1,249.00</td>
+                                <td><span th:class="${sub.status.badgeClass}" th:text="${sub.status.displayName}">Active</span></td>
+                                <td class="text-muted small" th:text="${sub.nextBillingDate}">2026-11-01</td>
+                                <td class="text-end">
+                                    <button class="btn btn-sm btn-light border rounded px-2 py-1"><i class="bi bi-pencil"></i></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+        <footer th:replace="~{fragments/footer :: footer}"></footer>
+    </div>
+</div>
+<div th:replace="~{fragments/scripts :: scripts}"></div>
+</body>
+</html>
