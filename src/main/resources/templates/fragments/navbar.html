@@ -1,59 +1,54 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <body>
-<nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top py-3">
+<nav th:fragment="navbar" class="navbar navbar-expand-lg bg-white border-bottom sticky-top py-3">
     <div class="container">
         <!-- Brand Logo -->
-        <a class="navbar-brand d-flex align-items-center gap-2 fw-bold" th:href="@{/}">
+        <a class="navbar-brand d-flex align-items-center gap-2" th:href="@{/}">
             <span class="brand-logo-mark">B</span>
-            <span class="fs-4 brand-font brand-text-gradient">Billora</span>
-            <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2 py-1 ms-1" style="font-size: 0.72rem;">Pro</span>
+            <span class="fs-4 brand-font text-dark">Billora</span>
         </a>
 
         <!-- Mobile Toggler -->
-        <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#landingNavbar" aria-controls="landingNavbar" aria-expanded="false" aria-label="Toggle navigation">
-            <i class="bi bi-list fs-2 text-dark"></i>
+        <button class="navbar-toggler border-0 shadow-none p-1" type="button" data-bs-toggle="collapse" data-bs-target="#landingNavbar" aria-controls="landingNavbar" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-list fs-3 text-dark"></i>
         </button>
 
         <!-- Nav Items -->
         <div class="collapse navbar-collapse" id="landingNavbar">
             <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-3">
                 <li class="nav-item">
-                    <a class="nav-link fw-medium text-dark" href="#features">Features</a>
+                    <a class="nav-link text-dark fw-medium" href="#features">Features</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link fw-medium text-dark" href="#architecture">Architecture</a>
+                    <a class="nav-link text-dark fw-medium" href="#calculator">Revenue Simulator</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link fw-medium text-dark" href="#calculator">Revenue Simulator</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link fw-medium text-dark" href="#techstack">Tech Stack</a>
+                    <a class="nav-link text-dark fw-medium" href="#architecture">Architecture</a>
                 </li>
             </ul>
 
             <!-- Auth Buttons (Anonymous) -->
             <div class="d-flex align-items-center gap-2" sec:authorize="!isAuthenticated()">
-                <a th:href="@{/login}" class="btn btn-outline-secondary px-3 py-2 rounded-3 fw-semibold d-inline-flex align-items-center gap-2">
-                    <i class="bi bi-box-arrow-in-right"></i>
+                <a th:href="@{/login}" class="btn btn-outline-secondary px-3 py-2">
                     <span>Sign In</span>
                 </a>
-                <a th:href="@{/register}" class="btn btn-primary-billora d-inline-flex align-items-center gap-2">
-                    <i class="bi bi-person-plus-fill"></i>
+                <a th:href="@{/register}" class="btn btn-primary px-3 py-2 d-inline-flex align-items-center gap-2">
                     <span>Get Started</span>
+                    <i class="bi bi-arrow-right"></i>
                 </a>
             </div>
 
             <!-- Auth Buttons (Authenticated) -->
             <div class="d-flex align-items-center gap-3" sec:authorize="isAuthenticated()">
-                <a th:href="@{/dashboard}" class="btn btn-outline-primary px-3 py-2 rounded-3 fw-semibold d-inline-flex align-items-center gap-2">
-                    <i class="bi bi-speedometer2"></i>
+                <a th:href="@{/dashboard}" class="btn btn-primary px-3 py-2 d-inline-flex align-items-center gap-2">
+                    <i class="bi bi-grid-1x2"></i>
                     <span>Dashboard</span>
                 </a>
                 <div class="d-flex align-items-center gap-2">
-                    <div class="user-avatar" style="width: 34px; height: 34px; font-size: 0.8rem;" th:text="${#authentication != null and #authentication.name != null ? #strings.substring(#authentication.name, 0, 1).toUpperCase() : 'U'}">U</div>
+                    <div class="user-avatar" th:text="${#authentication != null and #authentication.name != null ? #strings.substring(#authentication.name, 0, 1).toUpperCase() : 'U'}">U</div>
                     <form th:action="@{/logout}" method="post" class="m-0 p-0">
-                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Sign Out">
+                        <button type="submit" class="btn btn-sm btn-outline-secondary" title="Sign Out">
                             <i class="bi bi-box-arrow-right"></i>
                         </button>
                     </form>

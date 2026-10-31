@@ -1,20 +1,21 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head th:replace="~{fragments/head :: head('Error')}">
-    <title>Billora - Error</title>
+    <title>Error | Billora</title>
 </head>
-<body class="bg-light d-flex align-items-center justify-content-center min-vh-100 p-4">
-    <div class="billora-card p-5 text-center max-w-lg shadow-lg" style="max-width: 520px;">
-        <div class="stat-icon-wrapper stat-icon-amber mx-auto mb-4" style="width: 72px; height: 72px; font-size: 2rem;">
+<body class="d-flex align-items-center justify-content-center min-vh-100 p-4" style="background-color: var(--color-offwhite);">
+    <div class="billora-card p-5 text-center position-relative" style="max-width: 500px;">
+        <div class="position-absolute top-0 start-0 end-0 rounded-top" style="height: 3px; background-color: var(--color-blue);"></div>
+        <div class="stat-icon-wrapper mx-auto mb-3" style="width: 56px; height: 56px; font-size: 1.75rem; background: #F3F4F6; color: var(--color-black);">
             <i class="bi bi-exclamation-triangle"></i>
         </div>
-        <h2 class="fw-bold mb-2 text-dark" th:text="${status != null ? status + ' - ' + error : 'Something went wrong'}">Page Not Found</h2>
-        <p class="text-muted mb-4" th:text="${message != null ? message : 'The requested resource could not be found or an unexpected error occurred.'}">
+        <h1 class="h4 fw-bold mb-2 text-dark" th:text="${status != null ? status + ' - ' + error : 'Something went wrong'}">Page Not Found</h1>
+        <p class="text-muted mb-4 small" th:text="${message != null ? message : 'The requested resource could not be found or an unexpected error occurred.'}">
             The page you are looking for doesn't exist or has been moved.
         </p>
         <div class="d-flex justify-content-center gap-2">
             <a th:href="@{/}" class="btn btn-outline-secondary px-4">Homepage</a>
-            <a th:href="@{/dashboard}" class="btn btn-primary-billora px-4">Dashboard</a>
+            <a th:href="@{/dashboard}" class="btn btn-primary px-4">Dashboard</a>
         </div>
     </div>
 </body>

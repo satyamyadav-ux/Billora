@@ -4,15 +4,15 @@
 <footer th:fragment="footer" class="py-3 px-4 border-top bg-white text-muted small mt-auto">
     <div class="d-flex flex-column flex-sm-row align-items-center justify-content-between gap-2">
         <div class="d-flex align-items-center gap-2">
-            <span class="fw-bold brand-text-gradient">Billora</span>
-            <span>&copy; 2026. Built with Java 21, Spring Boot, Thymeleaf &amp; PostgreSQL.</span>
+            <span class="fw-bold text-dark">Billora</span>
+            <span>&copy; 2026. Minimal Subscription Management &amp; Recurring Billing.</span>
         </div>
         <div class="d-flex align-items-center gap-3">
-            <span class="d-inline-flex align-items-center gap-1 text-success">
-                <i class="bi bi-shield-fill-check"></i> System Stable
+            <span class="d-inline-flex align-items-center gap-1" style="color: var(--color-green);">
+                <i class="bi bi-shield-check"></i> System Operational
             </span>
-            <a th:href="@{/dashboard/settings}" class="text-muted text-decoration-none hover-text-dark">Environment</a>
-            <a th:href="@{/}" class="text-muted text-decoration-none hover-text-dark">Public Site</a>
+            <a th:href="@{/dashboard}" class="text-muted text-decoration-none">Dashboard</a>
+            <a th:href="@{/}" class="text-muted text-decoration-none">Home</a>
         </div>
     </div>
 </footer>

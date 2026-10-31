@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head th:replace="~{fragments/head :: head('Revenue Analytics')}">
-    <title>Billora - Revenue Analytics</title>
+    <title>Analytics | Billora</title>
 </head>
 <body>
 <div class="dashboard-wrapper">
@@ -12,7 +12,7 @@
         <main class="dashboard-content">
             <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
                 <div>
-                    <h2 class="h3 fw-bold mb-1">Revenue Analytics &amp; Retention</h2>
+                    <h1 class="h3 fw-bold mb-1 text-dark">Revenue Analytics &amp; Retention</h1>
                     <p class="text-muted small mb-0">MRR expansion, contraction, churn cohorts, and customer lifetime value metrics.</p>
                 </div>
             </div>
@@ -20,41 +20,45 @@
             <!-- Key Metrics -->
             <div class="row g-3 mb-4">
                 <div class="col-md-3">
-                    <div class="p-3 bg-white rounded-3 border">
-                        <span class="text-muted small">Current MRR</span>
-                        <h4 class="fw-bold mb-0 text-dark mt-1" th:text="${currencySymbol} + ${#numbers.formatDecimal(summary.monthlyRecurringRevenue, 1, 'COMMA', 2, 'POINT')}">$48,290.00</h4>
+                    <div class="p-3 billora-card position-relative">
+                        <div class="position-absolute top-0 start-0 end-0 rounded-top" style="height: 3px; background-color: var(--color-green);"></div>
+                        <span class="text-muted small fw-medium">Current MRR</span>
+                        <h2 class="h4 fw-bold mb-0 text-dark mt-1" th:text="${currencySymbol} + ${#numbers.formatDecimal(summary.monthlyRecurringRevenue, 1, 'COMMA', 2, 'POINT')}">$48,290.00</h2>
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="p-3 bg-white rounded-3 border">
-                        <span class="text-muted small">Annual Run-Rate</span>
-                        <h4 class="fw-bold mb-0 text-dark mt-1" th:text="${currencySymbol} + ${#numbers.formatDecimal(summary.annualRecurringRevenue, 1, 'COMMA', 2, 'POINT')}">$579,480.00</h4>
+                    <div class="p-3 billora-card position-relative">
+                        <div class="position-absolute top-0 start-0 end-0 rounded-top" style="height: 3px; background-color: var(--color-blue);"></div>
+                        <span class="text-muted small fw-medium">Annual Run-Rate</span>
+                        <h2 class="h4 fw-bold mb-0 text-dark mt-1" th:text="${currencySymbol} + ${#numbers.formatDecimal(summary.annualRecurringRevenue, 1, 'COMMA', 2, 'POINT')}">$579,480.00</h2>
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="p-3 bg-white rounded-3 border">
-                        <span class="text-muted small">MRR Growth</span>
-                        <h4 class="fw-bold mb-0 text-success mt-1" th:text="'+' + ${summary.mrrGrowthRatePercentage} + '%'">+18.6%</h4>
+                    <div class="p-3 billora-card position-relative">
+                        <div class="position-absolute top-0 start-0 end-0 rounded-top" style="height: 3px; background-color: var(--color-green);"></div>
+                        <span class="text-muted small fw-medium">MRR Growth</span>
+                        <h2 class="h4 fw-bold mb-0 mt-1" style="color: var(--color-green);" th:text="'+' + ${summary.mrrGrowthRatePercentage} + '%'">+18.6%</h2>
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="p-3 bg-white rounded-3 border">
-                        <span class="text-muted small">Net Churn</span>
-                        <h4 class="fw-bold mb-0 text-info mt-1" th:text="${summary.churnRatePercentage} + '%'">1.42%</h4>
+                    <div class="p-3 billora-card position-relative">
+                        <div class="position-absolute top-0 start-0 end-0 rounded-top" style="height: 3px; background-color: var(--color-yellow);"></div>
+                        <span class="text-muted small fw-medium">Net Churn</span>
+                        <h2 class="h4 fw-bold mb-0 mt-1 text-dark" th:text="${summary.churnRatePercentage} + '%'">1.42%</h2>
                     </div>
                 </div>
             </div>
 
             <div class="billora-card p-4 text-center py-5">
-                <div class="stat-icon-wrapper stat-icon-cyan mx-auto mb-3" style="width: 60px; height: 60px; font-size: 1.75rem;">
-                    <i class="bi bi-graph-up-arrow"></i>
+                <div class="stat-icon-wrapper stat-icon-blue mx-auto mb-3" style="width: 52px; height: 52px; font-size: 1.5rem;">
+                    <i class="bi bi-graph-up"></i>
                 </div>
-                <h5 class="fw-bold">Analytics Engine Configured</h5>
-                <p class="text-muted small max-w-md mx-auto mb-4">
-                    The package <code>com.billora.modules.analytics</code> will aggregate recurring billing tables for cohorts, net revenue retention, and MRR movements.
+                <h2 class="h5 fw-bold text-dark mb-2">Analytics Engine Configured</h2>
+                <p class="text-muted small mx-auto mb-4" style="max-width: 440px;">
+                    Recurring billing data is aggregated for churn cohorts, net revenue retention (NRR), and MRR movement graphs.
                 </p>
                 <div class="d-flex justify-content-center gap-2">
-                    <a th:href="@{/dashboard}" class="btn btn-primary-billora btn-sm">Return to Overview</a>
+                    <a th:href="@{/dashboard}" class="btn btn-outline-secondary btn-sm">Return to Overview</a>
                 </div>
             </div>
         </main>

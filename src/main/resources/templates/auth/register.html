@@ -3,7 +3,7 @@
 <head th:replace="~{fragments/head :: head('Create Account')}">
     <title>Sign Up | Billora</title>
 </head>
-<body class="bg-light d-flex align-items-center min-vh-100 py-5">
+<body class="d-flex align-items-center min-vh-100 py-5" style="background-color: var(--color-offwhite);">
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-9 col-lg-6 col-xl-5">
@@ -11,39 +11,40 @@
                 <div class="text-center mb-4">
                     <a th:href="@{/}" class="d-inline-flex align-items-center gap-2 text-decoration-none mb-2">
                         <span class="brand-logo-mark">B</span>
-                        <span class="fs-2 brand-font brand-text-gradient fw-bold">Billora</span>
+                        <span class="fs-3 brand-font text-dark">Billora</span>
                     </a>
                     <h1 class="h4 fw-bold text-dark mb-1">Create Customer Account</h1>
                     <p class="text-muted small">Start managing recurring subscriptions, billing &amp; invoices</p>
                 </div>
 
-                <!-- Global Error Alert -->
+                <!-- Global Error Alert (Dark outlined per rule) -->
                 <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show d-flex align-items-center gap-2 small" role="alert">
-                    <i class="bi bi-exclamation-triangle-fill flex-shrink-0 fs-5"></i>
+                    <i class="bi bi-exclamation-circle-fill flex-shrink-0"></i>
                     <div th:text="${errorMessage}">Registration error</div>
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
 
                 <!-- Signup Card -->
-                <div class="billora-card p-4 p-sm-5 shadow-sm mb-4">
+                <div class="billora-card p-4 p-sm-5 mb-4 position-relative">
+                    <div class="position-absolute top-0 start-0 end-0 rounded-top" style="height: 3px; background-color: var(--color-blue);"></div>
                     <form th:action="@{/register}" th:object="${registerDto}" method="post" novalidate id="registerForm">
                         
                         <!-- Full Name -->
                         <div class="mb-3">
-                            <label for="fullName" class="form-label fw-semibold small text-dark">Full Name <span class="text-danger">*</span></label>
+                            <label for="fullName" class="form-label">Full Name <span class="text-dark">*</span></label>
                             <div class="input-group">
-                                <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-person"></i></span>
-                                <input type="text" th:field="*{fullName}" class="form-control border-start-0 ps-0" th:classappend="${#fields.hasErrors('fullName')} ? 'is-invalid' : ''" id="fullName" placeholder="Jane Doe" required autofocus>
+                                <span class="input-group-text"><i class="bi bi-person"></i></span>
+                                <input type="text" th:field="*{fullName}" class="form-control ps-2" th:classappend="${#fields.hasErrors('fullName')} ? 'is-invalid' : ''" id="fullName" placeholder="Jane Doe" required autofocus>
                                 <div class="invalid-feedback" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}">Invalid full name.</div>
                             </div>
                         </div>
 
                         <!-- Email Address -->
                         <div class="mb-3">
-                            <label for="email" class="form-label fw-semibold small text-dark">Email Address <span class="text-danger">*</span></label>
+                            <label for="email" class="form-label">Email Address <span class="text-dark">*</span></label>
                             <div class="input-group">
-                                <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-envelope"></i></span>
-                                <input type="email" th:field="*{email}" class="form-control border-start-0 ps-0" th:classappend="${#fields.hasErrors('email')} ? 'is-invalid' : ''" id="email" placeholder="jane@company.com" required>
+                                <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                                <input type="email" th:field="*{email}" class="form-control ps-2" th:classappend="${#fields.hasErrors('email')} ? 'is-invalid' : ''" id="email" placeholder="jane@company.com" required>
                                 <div class="invalid-feedback" th:if="${#fields.hasErrors('email')}" th:errors="*{email}">Invalid or duplicate email.</div>
                             </div>
                             <small class="text-muted" style="font-size: 0.72rem;">Must be unique across customer accounts.</small>
@@ -51,28 +52,28 @@
 
                         <!-- Company / Organization Name (Optional) -->
                         <div class="mb-3">
-                            <label for="companyName" class="form-label fw-semibold small text-dark">Company / Organization <span class="text-muted fw-normal">(Optional)</span></label>
+                            <label for="companyName" class="form-label">Company / Organization <span class="text-muted fw-normal">(Optional)</span></label>
                             <div class="input-group">
-                                <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-building"></i></span>
-                                <input type="text" th:field="*{companyName}" class="form-control border-start-0 ps-0" id="companyName" placeholder="Acme Technologies Inc.">
+                                <span class="input-group-text"><i class="bi bi-building"></i></span>
+                                <input type="text" th:field="*{companyName}" class="form-control ps-2" id="companyName" placeholder="Acme Technologies Inc.">
                             </div>
                         </div>
 
                         <!-- Password -->
                         <div class="mb-3">
-                            <label for="regPassword" class="form-label fw-semibold small text-dark">Password <span class="text-danger">*</span></label>
+                            <label for="regPassword" class="form-label">Password <span class="text-dark">*</span></label>
                             <div class="input-group">
-                                <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-lock"></i></span>
-                                <input type="password" th:field="*{password}" class="form-control border-start-0 ps-0" th:classappend="${#fields.hasErrors('password')} ? 'is-invalid' : ''" id="regPassword" placeholder="Minimum 8 characters" required>
-                                <button class="btn btn-outline-secondary border-start-0" type="button" id="toggleRegPasswordBtn">
+                                <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                                <input type="password" th:field="*{password}" class="form-control ps-2" th:classappend="${#fields.hasErrors('password')} ? 'is-invalid' : ''" id="regPassword" placeholder="Minimum 8 characters" required>
+                                <button class="btn btn-outline-secondary" type="button" id="toggleRegPasswordBtn">
                                     <i class="bi bi-eye"></i>
                                 </button>
                                 <div class="invalid-feedback" th:if="${#fields.hasErrors('password')}" th:errors="*{password}">Invalid password format.</div>
                             </div>
 
-                            <!-- Live Password Strength Checklist -->
-                            <div class="p-2 mt-2 bg-light rounded-3 border small" id="pwdStrengthBox">
-                                <div class="fw-semibold text-muted mb-1" style="font-size: 0.72rem;">Password Requirements:</div>
+                            <!-- Live Password Strength Checklist (Green checkmarks) -->
+                            <div class="p-2 mt-2 bg-white rounded-2 border small" id="pwdStrengthBox">
+                                <div class="fw-medium text-dark mb-1" style="font-size: 0.72rem;">Password Requirements:</div>
                                 <div class="d-flex flex-column gap-1" style="font-size: 0.75rem;">
                                     <span id="reqLength" class="text-muted d-flex align-items-center gap-1">
                                         <i class="bi bi-circle"></i> At least 8 characters long
@@ -89,10 +90,10 @@
 
                         <!-- Confirm Password -->
                         <div class="mb-3">
-                            <label for="confirmPassword" class="form-label fw-semibold small text-dark">Confirm Password <span class="text-danger">*</span></label>
+                            <label for="confirmPassword" class="form-label">Confirm Password <span class="text-dark">*</span></label>
                             <div class="input-group">
-                                <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-shield-check"></i></span>
-                                <input type="password" th:field="*{confirmPassword}" class="form-control border-start-0 ps-0" th:classappend="${#fields.hasErrors('confirmPassword')} ? 'is-invalid' : ''" id="confirmPassword" placeholder="Re-type password" required>
+                                <span class="input-group-text"><i class="bi bi-shield-check"></i></span>
+                                <input type="password" th:field="*{confirmPassword}" class="form-control ps-2" th:classappend="${#fields.hasErrors('confirmPassword')} ? 'is-invalid' : ''" id="confirmPassword" placeholder="Re-type password" required>
                                 <div class="invalid-feedback" th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}">Passwords do not match.</div>
                             </div>
                         </div>
@@ -101,15 +102,15 @@
                         <div class="mb-4 form-check">
                             <input type="checkbox" th:field="*{termsAccepted}" class="form-check-input" th:classappend="${#fields.hasErrors('termsAccepted')} ? 'is-invalid' : ''" id="termsAccepted">
                             <label class="form-check-label small text-muted" for="termsAccepted">
-                                I agree to the <a href="#" class="text-primary text-decoration-none">Terms of Service</a> and <a href="#" class="text-primary text-decoration-none">Privacy Policy</a>
+                                I agree to the <a href="#" class="text-dark fw-medium text-decoration-none">Terms of Service</a> and <a href="#" class="text-dark fw-medium text-decoration-none">Privacy Policy</a>
                             </label>
                             <div class="invalid-feedback" th:if="${#fields.hasErrors('termsAccepted')}" th:errors="*{termsAccepted}">You must accept the terms.</div>
                         </div>
 
-                        <!-- Submit Button -->
+                        <!-- Submit Button (Blue Primary) -->
                         <div class="d-grid">
-                            <button type="submit" class="btn btn-primary-billora py-2 fw-semibold d-flex align-items-center justify-content-center gap-2">
-                                <i class="bi bi-person-plus-fill"></i>
+                            <button type="submit" class="btn btn-primary py-2 fw-semibold d-flex align-items-center justify-content-center gap-2">
+                                <i class="bi bi-person-plus"></i>
                                 <span>Create Customer Account</span>
                             </button>
                         </div>
@@ -119,7 +120,7 @@
                 <!-- Footer Link -->
                 <div class="text-center text-muted small">
                     Already have an account? 
-                    <a th:href="@{/login}" class="fw-bold text-primary text-decoration-none">Sign in here</a>
+                    <a th:href="@{/login}" class="fw-medium text-dark text-decoration-none">Sign in here</a>
                 </div>
                 <div class="text-center mt-3">
                     <a th:href="@{/}" class="text-muted small text-decoration-none">
@@ -132,7 +133,6 @@
 
     <div th:replace="~{fragments/scripts :: scripts}"></div>
     <script>
-        // Password visibility toggle
         const toggleRegPasswordBtn = document.getElementById('toggleRegPasswordBtn');
         const regPasswordInput = document.getElementById('regPassword');
         if (toggleRegPasswordBtn && regPasswordInput) {
@@ -143,21 +143,9 @@
             });
         }
 
-        // Live password requirement checklist
         const reqLength = document.getElementById('reqLength');
         const reqLetters = document.getElementById('reqLetters');
         const reqNumbers = document.getElementById('reqNumbers');
-
-        function updateCheck(el, valid) {
-            if (!el) return;
-            if (valid) {
-                el.className = 'text-success d-flex align-items-center gap-1 fw-medium';
-                el.innerHTML = '<i class="bi bi-check-circle-fill"></i> ' + el.textContent.trim();
-            } else {
-                el.className = 'text-muted d-flex align-items-center gap-1';
-                el.innerHTML = '<i class="bi bi-circle"></i> ' + el.textContent.trim();
-            }
-        }
 
         if (regPasswordInput) {
             regPasswordInput.addEventListener('input', () => {
@@ -166,13 +154,16 @@
                 const hasLetters = /[A-Za-z]/.test(val);
                 const hasNumbers = /\d/.test(val);
 
-                reqLength.className = hasLen ? 'text-success d-flex align-items-center gap-1 fw-medium' : 'text-muted d-flex align-items-center gap-1';
+                reqLength.className = hasLen ? 'd-flex align-items-center gap-1 fw-medium' : 'text-muted d-flex align-items-center gap-1';
+                reqLength.style.color = hasLen ? 'var(--color-green)' : '';
                 reqLength.innerHTML = (hasLen ? '<i class="bi bi-check-circle-fill"></i>' : '<i class="bi bi-circle"></i>') + ' At least 8 characters long';
 
-                reqLetters.className = hasLetters ? 'text-success d-flex align-items-center gap-1 fw-medium' : 'text-muted d-flex align-items-center gap-1';
+                reqLetters.className = hasLetters ? 'd-flex align-items-center gap-1 fw-medium' : 'text-muted d-flex align-items-center gap-1';
+                reqLetters.style.color = hasLetters ? 'var(--color-green)' : '';
                 reqLetters.innerHTML = (hasLetters ? '<i class="bi bi-check-circle-fill"></i>' : '<i class="bi bi-circle"></i>') + ' Contains letters';
 
-                reqNumbers.className = hasNumbers ? 'text-success d-flex align-items-center gap-1 fw-medium' : 'text-muted d-flex align-items-center gap-1';
+                reqNumbers.className = hasNumbers ? 'd-flex align-items-center gap-1 fw-medium' : 'text-muted d-flex align-items-center gap-1';
+                reqNumbers.style.color = hasNumbers ? 'var(--color-green)' : '';
                 reqNumbers.innerHTML = (hasNumbers ? '<i class="bi bi-check-circle-fill"></i>' : '<i class="bi bi-circle"></i>') + ' Contains numbers';
             });
         }

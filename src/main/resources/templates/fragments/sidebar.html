@@ -8,27 +8,27 @@
             <span class="brand-logo-mark">B</span>
             <div class="d-flex flex-column">
                 <span class="fs-5 brand-font text-white fw-bold lh-1">Billora</span>
-                <span class="text-white-50" style="font-size: 0.68rem; letter-spacing: 0.05em;">SUBSCRIPTION PLATFORM</span>
+                <span class="text-white-50" style="font-size: 0.65rem; letter-spacing: 0.06em;">RECURRING BILLING</span>
             </div>
         </a>
-        <span class="badge bg-indigo text-light border border-indigo-subtle rounded-pill px-2 py-1" style="font-size: 0.65rem; background: rgba(99, 102, 241, 0.3);">v1.0</span>
+        <span class="badge" style="background: rgba(255,255,255,0.08); color: #FFFFFF; border: 1px solid rgba(255,255,255,0.12); font-size: 0.65rem;">v1.0</span>
     </div>
 
     <!-- Workspace / Organization Info -->
     <div class="px-3 pt-3">
-        <div class="p-2 rounded-3" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08);">
+        <div class="p-2 rounded-2" style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08);">
             <div class="d-flex align-items-center justify-content-between">
                 <div class="d-flex align-items-center gap-2 overflow-hidden">
-                    <div class="rounded-2 bg-primary text-white d-flex align-items-center justify-content-center fw-bold" style="width: 24px; height: 24px; font-size: 0.75rem;">HQ</div>
+                    <div class="rounded-1 text-white d-flex align-items-center justify-content-center fw-bold" style="width: 22px; height: 22px; font-size: 0.72rem; background: #222222; border: 1px solid rgba(255,255,255,0.15);">HQ</div>
                     <div class="text-truncate">
-                        <div class="text-white fw-semibold text-truncate" style="font-size: 0.82rem;">Billora Workspace</div>
-                        <div class="text-success small d-flex align-items-center gap-1" style="font-size: 0.68rem;">
-                            <span class="spinner-grow spinner-grow-sm text-success" style="width: 6px; height: 6px;" role="status"></span>
-                            Live Protected
+                        <div class="text-white fw-medium text-truncate" style="font-size: 0.8rem;">Billora Workspace</div>
+                        <div class="small d-flex align-items-center gap-1" style="font-size: 0.65rem; color: var(--color-green);">
+                            <span class="spinner-grow spinner-grow-sm" style="width: 5px; height: 5px; color: var(--color-green);" role="status"></span>
+                            Live Console
                         </div>
                     </div>
                 </div>
-                <i class="bi bi-shield-lock-fill text-white-50 small"></i>
+                <i class="bi bi-shield-check text-white-50 small"></i>
             </div>
         </div>
     </div>
@@ -39,7 +39,7 @@
         <ul class="nav flex-column list-unstyled">
             <li class="nav-item">
                 <a th:href="@{/dashboard}" class="sidebar-nav-link" th:classappend="${activePage == 'dashboard' ? 'active' : ''}">
-                    <i class="bi bi-grid-1x2-fill"></i>
+                    <i class="bi bi-grid-1x2"></i>
                     <span>Overview</span>
                 </a>
             </li>
@@ -47,19 +47,19 @@
                 <a th:href="@{/dashboard/subscriptions}" class="sidebar-nav-link" th:classappend="${activePage == 'subscriptions' ? 'active' : ''}">
                     <i class="bi bi-arrow-repeat"></i>
                     <span>Subscriptions</span>
-                    <span class="sidebar-badge bg-primary text-white">1,482</span>
+                    <span class="sidebar-badge">1,482</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a th:href="@{/dashboard/invoices}" class="sidebar-nav-link" th:classappend="${activePage == 'invoices' ? 'active' : ''}">
-                    <i class="bi bi-receipt-cutoff"></i>
+                    <i class="bi bi-receipt"></i>
                     <span>Invoices &amp; Billing</span>
-                    <span class="sidebar-badge bg-warning text-dark">8 open</span>
+                    <span class="sidebar-badge" style="background: var(--color-yellow-subtle); color: var(--color-black); border: 1px solid var(--color-yellow-border);">8 open</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a th:href="@{/dashboard/customers}" class="sidebar-nav-link" th:classappend="${activePage == 'customers' ? 'active' : ''}">
-                    <i class="bi bi-people-fill"></i>
+                    <i class="bi bi-people"></i>
                     <span>Customers</span>
                 </a>
             </li>
@@ -71,7 +71,7 @@
             <ul class="nav flex-column list-unstyled">
                 <li class="nav-item">
                     <a th:href="@{/dashboard/analytics}" class="sidebar-nav-link" th:classappend="${activePage == 'analytics' ? 'active' : ''}">
-                        <i class="bi bi-graph-up-arrow"></i>
+                        <i class="bi bi-graph-up"></i>
                         <span>Revenue Analytics</span>
                     </a>
                 </li>
@@ -85,28 +85,24 @@
                 <a th:href="@{/dashboard/settings}" class="sidebar-nav-link" th:classappend="${activePage == 'settings' ? 'active' : ''}">
                     <i class="bi bi-sliders"></i>
                     <span>System Settings</span>
-                    <span class="badge bg-danger-subtle text-danger ms-auto" style="font-size: 0.65rem;">Admin</span>
+                    <span class="badge ms-auto" style="background: var(--color-blue-subtle); color: var(--color-blue); border: 1px solid var(--color-blue-border); font-size: 0.65rem;">Admin</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a th:href="@{/}" class="sidebar-nav-link text-info">
-                    <i class="bi bi-box-arrow-up-right text-info"></i>
+                <a th:href="@{/}" class="sidebar-nav-link text-white-50">
+                    <i class="bi bi-box-arrow-up-right"></i>
                     <span>Public Homepage</span>
                 </a>
             </li>
         </ul>
 
-        <!-- Role Access Status Card -->
-        <div class="mt-4 p-3 rounded-3" style="background: linear-gradient(135deg, rgba(79, 70, 229, 0.15), rgba(6, 182, 212, 0.1)); border: 1px solid rgba(79, 70, 229, 0.25);">
-            <div class="d-flex align-items-center justify-content-between mb-2">
-                <span class="text-white fw-bold small">Current Role</span>
-                <span class="badge bg-danger" style="font-size: 0.65rem;" sec:authorize="hasRole('ADMIN')">ADMIN</span>
-                <span class="badge bg-primary" style="font-size: 0.65rem;" sec:authorize="hasRole('STAFF')">STAFF</span>
-                <span class="badge bg-success" style="font-size: 0.65rem;" sec:authorize="hasRole('CUSTOMER')">CUSTOMER</span>
-            </div>
-            <div class="text-white-50 small mb-2" style="font-size: 0.72rem; line-height: 1.4;">
-                <i class="bi bi-shield-check text-info me-1"></i> BCrypt Encrypted<br>
-                <i class="bi bi-person-check text-warning me-1"></i> Role Protected Session
+        <!-- Role Session Indicator -->
+        <div class="mt-4 p-2 rounded-2" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06);">
+            <div class="d-flex align-items-center justify-content-between">
+                <span class="text-white-50 small" style="font-size: 0.72rem;">Active Role</span>
+                <span class="badge" style="background: var(--color-blue-subtle); color: var(--color-blue); border: 1px solid var(--color-blue-border);" sec:authorize="hasRole('ADMIN')">ADMIN</span>
+                <span class="badge" style="background: rgba(255, 255, 255, 0.1); color: #FFFFFF; border: 1px solid rgba(255, 255, 255, 0.2);" sec:authorize="hasRole('STAFF')">STAFF</span>
+                <span class="badge" style="background: var(--color-green-subtle); color: var(--color-green); border: 1px solid var(--color-green-border);" sec:authorize="hasRole('CUSTOMER')">CUSTOMER</span>
             </div>
         </div>
     </div>
@@ -114,10 +110,10 @@
     <!-- Sidebar Footer -->
     <div class="sidebar-footer" sec:authorize="isAuthenticated()">
         <div class="d-flex align-items-center gap-2">
-            <div class="user-avatar" style="width: 34px; height: 34px; font-size: 0.8rem;" th:text="${#authentication != null and #authentication.name != null ? #strings.substring(#authentication.name, 0, 1).toUpperCase() : 'U'}">U</div>
+            <div class="user-avatar" style="width: 30px; height: 30px; font-size: 0.75rem;" th:text="${#authentication != null and #authentication.name != null ? #strings.substring(#authentication.name, 0, 1).toUpperCase() : 'U'}">U</div>
             <div class="d-flex flex-column overflow-hidden flex-grow-1">
-                <span class="text-white fw-semibold small text-truncate" sec:authentication="name">User Name</span>
-                <span class="text-white-50 small text-truncate" style="font-size: 0.7rem;">Active Account</span>
+                <span class="text-white fw-medium small text-truncate" sec:authentication="name">User Name</span>
+                <span class="text-white-50 small text-truncate" style="font-size: 0.68rem;">Signed In</span>
             </div>
             <form th:action="@{/logout}" method="post" class="m-0 p-0">
                 <button type="submit" class="btn btn-link text-white-50 p-0 hover-text-white border-0" title="Sign Out">

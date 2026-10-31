@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
-<head th:replace="~{fragments/head :: head('Next-Gen Subscription &amp; Recurring Billing')}">
+<head th:replace="~{fragments/head :: head('Modern Subscription &amp; Recurring Billing')}">
     <title>Billora - Subscription Management System</title>
 </head>
-<body class="bg-white">
+<body style="background-color: var(--color-offwhite);">
 
     <!-- Top Navigation -->
     <nav th:replace="~{fragments/navbar :: navbar}"></nav>
@@ -14,49 +14,48 @@
             <div class="row justify-content-center">
                 <div class="col-lg-10 col-xl-9">
                     <div class="hero-badge">
-                        <span class="badge bg-primary rounded-pill px-2 py-1">New</span>
-                        <span>Billora 1.0 • Hackathon Subscription Management Platform</span>
-                        <i class="bi bi-stars text-warning"></i>
+                        <span class="badge" style="background: var(--color-blue-subtle); color: var(--color-blue); border: 1px solid var(--color-blue-border);">v1.0</span>
+                        <span class="fw-medium">Modern Subscription &amp; Recurring Billing Engine</span>
                     </div>
 
                     <h1 class="hero-title">
                         Smarter Recurring Billing &amp; <br class="d-none d-md-block">
-                        <span class="brand-text-gradient">Subscription Revenue</span> System
+                        <span style="color: var(--color-blue);">Subscription Revenue</span> System
                     </h1>
 
                     <p class="hero-subtitle">
-                        Built from the ground up on <strong>Java 21, Spring Boot 3.3, and PostgreSQL</strong>. 
-                        Effortlessly automate multi-tier recurring subscriptions, generate itemized invoices, 
-                        and gain real-time visibility into MRR and subscriber retention.
+                        Engineered on <strong>Java 21, Spring Boot 3.3, and PostgreSQL</strong>. 
+                        Automate multi-tier recurring billing cycles, generate compliant itemized invoices, 
+                        and gain real-time visibility into MRR growth and subscriber retention.
                     </p>
 
                     <div class="d-flex flex-column flex-sm-row justify-content-center align-items-center gap-3 mb-5">
-                        <a th:href="@{/dashboard}" class="btn btn-primary-billora btn-lg px-4 py-3 d-inline-flex align-items-center gap-2">
-                            <i class="bi bi-speedometer2 fs-5"></i>
+                        <a th:href="@{/dashboard}" class="btn btn-primary btn-lg px-4 py-3 d-inline-flex align-items-center gap-2">
                             <span>Launch Live Dashboard</span>
+                            <i class="bi bi-arrow-right"></i>
                         </a>
-                        <a href="#calculator" class="btn btn-outline-dark btn-lg px-4 py-3 rounded-3 d-inline-flex align-items-center gap-2">
-                            <i class="bi bi-sliders fs-5"></i>
-                            <span>Try Revenue Simulator</span>
+                        <a href="#calculator" class="btn btn-outline-secondary btn-lg px-4 py-3 d-inline-flex align-items-center gap-2">
+                            <i class="bi bi-sliders"></i>
+                            <span>Revenue Simulator</span>
                         </a>
                     </div>
 
                     <!-- Tech Stack Badges -->
                     <div class="d-flex flex-wrap justify-content-center align-items-center gap-2 text-muted small mb-5">
-                        <span class="px-3 py-1 bg-light border rounded-pill d-inline-flex align-items-center gap-2">
-                            <i class="bi bi-check-circle-fill text-success"></i> Java 21 LTS
+                        <span class="px-3 py-1 bg-white border rounded-pill d-inline-flex align-items-center gap-2">
+                            <i class="bi bi-check-circle-fill" style="color: var(--color-green);"></i> Java 21 LTS
                         </span>
-                        <span class="px-3 py-1 bg-light border rounded-pill d-inline-flex align-items-center gap-2">
-                            <i class="bi bi-check-circle-fill text-success"></i> Spring Boot 3.3.5
+                        <span class="px-3 py-1 bg-white border rounded-pill d-inline-flex align-items-center gap-2">
+                            <i class="bi bi-check-circle-fill" style="color: var(--color-green);"></i> Spring Boot 3.3.5
                         </span>
-                        <span class="px-3 py-1 bg-light border rounded-pill d-inline-flex align-items-center gap-2">
-                            <i class="bi bi-check-circle-fill text-success"></i> PostgreSQL 16
+                        <span class="px-3 py-1 bg-white border rounded-pill d-inline-flex align-items-center gap-2">
+                            <i class="bi bi-check-circle-fill" style="color: var(--color-green);"></i> PostgreSQL &amp; H2
                         </span>
-                        <span class="px-3 py-1 bg-light border rounded-pill d-inline-flex align-items-center gap-2">
-                            <i class="bi bi-check-circle-fill text-success"></i> Thymeleaf &amp; Bootstrap 5
+                        <span class="px-3 py-1 bg-white border rounded-pill d-inline-flex align-items-center gap-2">
+                            <i class="bi bi-check-circle-fill" style="color: var(--color-green);"></i> Spring Security (RBAC)
                         </span>
-                        <span class="px-3 py-1 bg-light border rounded-pill d-inline-flex align-items-center gap-2">
-                            <i class="bi bi-check-circle-fill text-success"></i> Spring Data JPA
+                        <span class="px-3 py-1 bg-white border rounded-pill d-inline-flex align-items-center gap-2">
+                            <i class="bi bi-check-circle-fill" style="color: var(--color-green);"></i> Thymeleaf &amp; Inter
                         </span>
                     </div>
                 </div>
@@ -69,59 +68,59 @@
                         <div class="window-header d-flex align-items-center justify-content-between">
                             <div class="d-flex align-items-center gap-3">
                                 <div class="window-dots">
-                                    <span class="window-dot dot-red"></span>
-                                    <span class="window-dot dot-yellow"></span>
-                                    <span class="window-dot dot-green"></span>
+                                    <span class="window-dot" style="background-color: var(--color-blue);"></span>
+                                    <span class="window-dot" style="background-color: var(--color-border);"></span>
+                                    <span class="window-dot" style="background-color: var(--color-green);"></span>
                                 </div>
                                 <span class="text-muted small fw-medium">billora.local:8080/dashboard — Overview Console</span>
                             </div>
-                            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-1 small">
-                                <i class="bi bi-circle-fill me-1" style="font-size: 6px;"></i> Live Data Engine
+                            <span class="badge" style="background: var(--color-green-subtle); color: var(--color-green); border: 1px solid var(--color-green-border);">
+                                Live Engine
                             </span>
                         </div>
-                        <div class="p-4 p-md-5 bg-light">
+                        <div class="p-4 p-md-5" style="background-color: var(--color-offwhite);">
                             <!-- Metrics Mini Grid -->
                             <div class="row g-3 mb-4">
                                 <div class="col-md-4">
-                                    <div class="p-3 bg-white rounded-3 border shadow-sm">
+                                    <div class="p-4 bg-white rounded-3 border">
                                         <div class="d-flex justify-content-between align-items-center mb-1">
-                                            <span class="text-muted small fw-semibold">Monthly Recurring Revenue</span>
+                                            <span class="text-muted small fw-semibold text-uppercase">Monthly Recurring (MRR)</span>
                                             <span class="stat-change-pill stat-change-up">+18.6%</span>
                                         </div>
-                                        <h3 class="fw-bold mb-0 text-dark">$48,290</h3>
+                                        <h3 class="h2 fw-bold mb-0 text-dark">$48,290.00</h3>
                                         <small class="text-muted">Target: $50,000 / mo</small>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
-                                    <div class="p-3 bg-white rounded-3 border shadow-sm">
+                                    <div class="p-4 bg-white rounded-3 border">
                                         <div class="d-flex justify-content-between align-items-center mb-1">
-                                            <span class="text-muted small fw-semibold">Active Subscriptions</span>
-                                            <span class="badge bg-primary-subtle text-primary">Live</span>
+                                            <span class="text-muted small fw-semibold text-uppercase">Active Subscriptions</span>
+                                            <span class="badge" style="background: var(--color-green-subtle); color: var(--color-green);">Active</span>
                                         </div>
-                                        <h3 class="fw-bold mb-0 text-dark">1,482</h3>
+                                        <h3 class="h2 fw-bold mb-0 text-dark">1,482</h3>
                                         <small class="text-muted">Across Starter, Pro &amp; Enterprise</small>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
-                                    <div class="p-3 bg-white rounded-3 border shadow-sm">
+                                    <div class="p-4 bg-white rounded-3 border">
                                         <div class="d-flex justify-content-between align-items-center mb-1">
-                                            <span class="text-muted small fw-semibold">Annualized ARR</span>
-                                            <span class="stat-change-pill stat-change-up">Strong</span>
+                                            <span class="text-muted small fw-semibold text-uppercase">Annualized ARR</span>
+                                            <span class="stat-change-pill stat-change-up">Healthy</span>
                                         </div>
-                                        <h3 class="fw-bold mb-0 text-dark">$579,480</h3>
+                                        <h3 class="h2 fw-bold mb-0 text-dark">$579,480.00</h3>
                                         <small class="text-muted">Low 1.42% net churn</small>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Mockup CTA banner -->
-                            <div class="p-4 rounded-3 text-white d-flex flex-column flex-md-row align-items-center justify-content-between gap-3" style="background: linear-gradient(135deg, #0b132b, #1c2541);">
+                            <div class="p-4 rounded-3 text-white d-flex flex-column flex-md-row align-items-center justify-content-between gap-3" style="background-color: var(--color-black); border: 1px solid rgba(255,255,255,0.1);">
                                 <div>
-                                    <h5 class="fw-bold mb-1 text-white">Full-featured Subscription Console Ready</h5>
-                                    <p class="mb-0 text-white-50 small">Explore the common sidebar, header navigation, responsive layout, and modular foundation.</p>
+                                    <h4 class="h5 fw-bold mb-1 text-white">Full-Featured Subscription Console Ready</h4>
+                                    <p class="mb-0 text-white-50 small">Explore the sidebar, overview cards, subscription filters, and revenue analytics.</p>
                                 </div>
-                                <a th:href="@{/dashboard}" class="btn btn-primary-billora btn-sm px-3 py-2 text-nowrap">
-                                    Open Full Dashboard <i class="bi bi-chevron-right ms-1"></i>
+                                <a th:href="@{/dashboard}" class="btn btn-primary btn-sm px-3 py-2 text-nowrap">
+                                    Open Dashboard <i class="bi bi-chevron-right ms-1"></i>
                                 </a>
                             </div>
                         </div>
@@ -132,78 +131,78 @@
     </section>
 
     <!-- Platform Modules Section -->
-    <section id="features" class="py-5 border-top">
+    <section id="features" class="py-5 bg-white border-top">
         <div class="container py-4">
-            <div class="text-center max-w-2xl mx-auto mb-5">
-                <span class="badge bg-indigo-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1 fw-bold mb-2">MODULAR ARCHITECTURE</span>
-                <h2 class="display-6 fw-bold">Engineered for Subscription Excellence</h2>
-                <p class="text-muted">Six specialized modules designed for high scalability, clean domain boundaries, and zero tech debt.</p>
+            <div class="text-center mx-auto mb-5" style="max-width: 640px;">
+                <span class="badge mb-2" style="background: #F3F4F6; color: var(--color-black); border: 1px solid var(--color-border);">MODULAR ARCHITECTURE</span>
+                <h2 class="display-6 fw-bold text-dark">Engineered for Billing Scalability</h2>
+                <p class="text-muted">Six specialized modules designed for clean domain boundaries, automated lifecycles, and zero technical debt.</p>
             </div>
 
             <div class="row g-4">
                 <!-- Feature 1 -->
                 <div class="col-md-6 col-lg-4">
-                    <div class="p-4 h-100 bg-white rounded-4 border feature-card billora-card">
+                    <div class="feature-card h-100 position-relative">
                         <div class="feature-icon-box">
                             <i class="bi bi-arrow-repeat"></i>
                         </div>
-                        <h5 class="fw-bold mb-2">Automated Lifecycle Billing</h5>
-                        <p class="text-muted small mb-0">Seamlessly schedule recurring billing cycles (monthly, quarterly, annually) with automated prorations and grace periods.</p>
+                        <h3 class="h5 fw-bold mb-2 text-dark">Lifecycle Billing</h3>
+                        <p class="text-muted small mb-0">Schedule recurring cycles (monthly, quarterly, annually) with automated prorations, renewals, and grace periods.</p>
                     </div>
                 </div>
 
                 <!-- Feature 2 -->
                 <div class="col-md-6 col-lg-4">
-                    <div class="p-4 h-100 bg-white rounded-4 border feature-card billora-card">
+                    <div class="feature-card h-100 position-relative">
                         <div class="feature-icon-box">
                             <i class="bi bi-receipt"></i>
                         </div>
-                        <h5 class="fw-bold mb-2">Smart Invoicing &amp; Tax</h5>
-                        <p class="text-muted small mb-0">Automated invoice PDF generation with itemized line items, multi-currency support, and compliant tax calculations.</p>
+                        <h3 class="h5 fw-bold mb-2 text-dark">Itemized Invoicing</h3>
+                        <p class="text-muted small mb-0">Automated invoice generation with itemized line items, currency formatting, and compliant billing records.</p>
                     </div>
                 </div>
 
                 <!-- Feature 3 -->
                 <div class="col-md-6 col-lg-4">
-                    <div class="p-4 h-100 bg-white rounded-4 border feature-card billora-card">
+                    <div class="feature-card h-100 position-relative">
                         <div class="feature-icon-box">
                             <i class="bi bi-people"></i>
                         </div>
-                        <h5 class="fw-bold mb-2">Customer &amp; Account Portal</h5>
-                        <p class="text-muted small mb-0">Comprehensive customer profiles, billing addresses, saved payment methods, and self-service plan management.</p>
+                        <h3 class="h5 fw-bold mb-2 text-dark">Customer Accounts</h3>
+                        <p class="text-muted small mb-0">Comprehensive customer profiles, billing addresses, saved payment methods, and account history.</p>
                     </div>
                 </div>
 
                 <!-- Feature 4 -->
                 <div class="col-md-6 col-lg-4">
-                    <div class="p-4 h-100 bg-white rounded-4 border feature-card billora-card">
+                    <div class="feature-card h-100 position-relative">
                         <div class="feature-icon-box">
                             <i class="bi bi-graph-up"></i>
                         </div>
-                        <h5 class="fw-bold mb-2">MRR &amp; Cohort Analytics</h5>
-                        <p class="text-muted small mb-0">Track real-time Monthly Recurring Revenue, customer churn, net retention, and expansion revenue cohorts.</p>
+                        <h3 class="h5 fw-bold mb-2 text-dark">MRR &amp; Cohort Analytics</h3>
+                        <p class="text-muted small mb-0">Real-time tracking of Monthly Recurring Revenue, annualized run rate, churn percentages, and retention.</p>
                     </div>
                 </div>
 
                 <!-- Feature 5 -->
                 <div class="col-md-6 col-lg-4">
-                    <div class="p-4 h-100 bg-white rounded-4 border feature-card billora-card">
+                    <div class="feature-card h-100 position-relative">
                         <div class="feature-icon-box">
-                            <i class="bi bi-shield-lock"></i>
+                            <i class="bi bi-shield-check"></i>
                         </div>
-                        <h5 class="fw-bold mb-2">Dunning &amp; Retry Logic</h5>
-                        <p class="text-muted small mb-0">Smart payment failure recovery with configurable retry schedules, dunning emails, and subscription suspension.</p>
+                        <h3 class="h5 fw-bold mb-2 text-dark">Dunning &amp; Retries</h3>
+                        <p class="text-muted small mb-0">Automated recovery of failed recurring charges with configurable retry intervals and subscription pausing.</p>
                     </div>
                 </div>
 
                 <!-- Feature 6 -->
                 <div class="col-md-6 col-lg-4">
-                    <div class="p-4 h-100 bg-white rounded-4 border feature-card billora-card">
+                    <div class="feature-card h-100 position-relative">
                         <div class="feature-icon-box">
                             <i class="bi bi-plug"></i>
                         </div>
-                        <h5 class="fw-bold mb-2">Gateway Integrations</h5>
-                        <p class="text-muted small mb-0">Modular webhook architecture ready to ingest events from Stripe, Razorpay, PayPal, or custom banking rails.</p>
+                        <h3 class="h5 fw-bold mb-2 text-dark">Gateway Ready</h3>
+                        <p class="text-muted small mb-0">Modular webhook architecture ready for payment rail integrations with Stripe, Razorpay, or local processors.</p>
                     </div>
                 </div>
             </div>
@@ -211,36 +210,36 @@
     </section>
 
     <!-- Interactive Revenue Simulator -->
-    <section id="calculator" class="py-5 bg-light">
+    <section id="calculator" class="py-5 border-top" style="background-color: var(--color-offwhite);">
         <div class="container py-4">
             <div class="row align-items-center g-5">
                 <div class="col-lg-5">
-                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1 fw-bold mb-2">INTERACTIVE SIMULATOR</span>
-                    <h2 class="display-6 fw-bold mb-3">Model Your Subscription Growth</h2>
+                    <span class="badge mb-2" style="background: var(--color-blue-subtle); color: var(--color-blue); border: 1px solid var(--color-blue-border);">REVENUE SIMULATOR</span>
+                    <h2 class="display-6 fw-bold text-dark mb-3">Model Your Subscription Growth</h2>
                     <p class="text-muted mb-4">
-                        Test Billora's revenue logic in real-time. Adjust the subscriber base and pricing plan to see how recurring billing scales into high-margin ARR.
+                        Test Billora's recurring revenue engine. Adjust the active subscriber volume and pricing plan to see how predictable recurring billing compounds.
                     </p>
                     <div class="d-flex flex-column gap-3">
                         <div class="d-flex align-items-center gap-3">
-                            <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
-                                <i class="bi bi-check-lg"></i>
+                            <div class="rounded-circle text-white d-flex align-items-center justify-content-center" style="width: 28px; height: 28px; background-color: var(--color-green);">
+                                <i class="bi bi-check-lg small"></i>
                             </div>
-                            <span class="fw-medium text-dark">Real-time dynamic recalculation</span>
+                            <span class="fw-medium text-dark">Instant dynamic recalculation</span>
                         </div>
                         <div class="d-flex align-items-center gap-3">
-                            <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
-                                <i class="bi bi-check-lg"></i>
+                            <div class="rounded-circle text-white d-flex align-items-center justify-content-center" style="width: 28px; height: 28px; background-color: var(--color-green);">
+                                <i class="bi bi-check-lg small"></i>
                             </div>
-                            <span class="fw-medium text-dark">Supports monthly, quarterly &amp; annual cycles</span>
+                            <span class="fw-medium text-dark">Annualized run-rate modeling</span>
                         </div>
                     </div>
                 </div>
 
                 <div class="col-lg-7">
-                    <div class="p-4 p-md-5 bg-white rounded-4 border shadow-sm">
+                    <div class="p-4 p-md-5 bg-white rounded-3 border shadow-sm">
                         <!-- Plan Selector -->
                         <div class="mb-4">
-                            <label for="calcPlanSelect" class="form-label fw-bold text-dark">Select Subscription Tier</label>
+                            <label for="calcPlanSelect" class="form-label fw-bold text-dark">Subscription Tier</label>
                             <select id="calcPlanSelect" class="form-select form-select-lg">
                                 <option value="29">Starter Plan ($29 / month)</option>
                                 <option value="79" selected>Professional Plan ($79 / month)</option>
@@ -253,7 +252,7 @@
                         <div class="mb-4">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <label for="subscriberRange" class="form-label fw-bold text-dark mb-0">Active Subscribers</label>
-                                <span class="badge bg-indigo text-white px-3 py-2 fs-6 rounded-pill" style="background-color: var(--brand-primary);" id="subscriberCountDisplay">600</span>
+                                <span class="badge px-3 py-1 fs-6" style="background-color: var(--color-blue); color: var(--color-white);" id="subscriberCountDisplay">600</span>
                             </div>
                             <input type="range" class="form-range" min="50" max="5000" step="50" value="600" id="subscriberRange">
                             <div class="d-flex justify-content-between text-muted small">
@@ -265,17 +264,17 @@
                         </div>
 
                         <!-- Results Box -->
-                        <div class="p-4 rounded-3 border" style="background: linear-gradient(135deg, #f8fafc, #eef2ff);">
+                        <div class="p-4 rounded-3 border" style="background-color: var(--color-offwhite);">
                             <div class="row text-center g-3">
                                 <div class="col-6 border-end">
                                     <span class="text-muted small fw-semibold text-uppercase">Projected MRR</span>
-                                    <h2 class="display-6 fw-bold text-primary mb-0 mt-1" id="estimatedMrr">$47,400</h2>
+                                    <h2 class="display-6 fw-bold mb-0 mt-1" style="color: var(--color-green);" id="estimatedMrr">$47,400</h2>
                                     <small class="text-muted">Per month</small>
                                 </div>
                                 <div class="col-6">
                                     <span class="text-muted small fw-semibold text-uppercase">Projected ARR</span>
                                     <h2 class="display-6 fw-bold text-dark mb-0 mt-1" id="estimatedArr">$568,800</h2>
-                                    <small class="text-muted">Annualized run-rate</small>
+                                    <small class="text-muted">Annual run-rate</small>
                                 </div>
                             </div>
                         </div>
@@ -286,41 +285,41 @@
     </section>
 
     <!-- Architecture & Stack Section -->
-    <section id="architecture" class="py-5 border-top">
+    <section id="architecture" class="py-5 bg-white border-top">
         <div class="container py-4">
-            <div class="text-center max-w-2xl mx-auto mb-5">
-                <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-1 fw-bold mb-2">STACK &amp; FOUNDATION</span>
-                <h2 class="display-6 fw-bold">Clean, Modern &amp; Robust Foundation</h2>
-                <p class="text-muted">Strict adherence to enterprise architecture best practices for the hackathon.</p>
+            <div class="text-center mx-auto mb-5" style="max-width: 640px;">
+                <span class="badge mb-2" style="background: #F3F4F6; color: var(--color-black); border: 1px solid var(--color-border);">STACK ARCHITECTURE</span>
+                <h2 class="display-6 fw-bold text-dark">Clean &amp; Minimal Architecture</h2>
+                <p class="text-muted">Robust server-side rendering, type safety, and zero frontend build bloat.</p>
             </div>
 
             <div class="row g-4">
                 <div class="col-md-3">
-                    <div class="p-4 text-center bg-white rounded-4 border h-100 billora-card">
-                        <div class="fs-1 text-primary mb-3"><i class="bi bi-filetype-java"></i></div>
-                        <h5 class="fw-bold">Java 21 LTS</h5>
-                        <p class="text-muted small mb-0">Record types, pattern matching, virtual thread readiness, and state-of-the-art JVM performance.</p>
+                    <div class="p-4 text-center bg-white rounded-3 border h-100 billora-card">
+                        <div class="fs-2 text-dark mb-3"><i class="bi bi-filetype-java"></i></div>
+                        <h4 class="h5 fw-bold text-dark">Java 21 LTS</h4>
+                        <p class="text-muted small mb-0">Record types, pattern matching, virtual thread support, and strict typing.</p>
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="p-4 text-center bg-white rounded-4 border h-100 billora-card">
-                        <div class="fs-1 text-success mb-3"><i class="bi bi-gear-wide-connected"></i></div>
-                        <h5 class="fw-bold">Spring Boot 3.3</h5>
-                        <p class="text-muted small mb-0">Jakarta EE 10, Spring Data JPA, Spring Security 6, and HikariCP connection pooling.</p>
+                    <div class="p-4 text-center bg-white rounded-3 border h-100 billora-card">
+                        <div class="fs-2 text-dark mb-3"><i class="bi bi-gear-wide"></i></div>
+                        <h4 class="h5 fw-bold text-dark">Spring Boot 3.3</h4>
+                        <p class="text-muted small mb-0">Jakarta EE 10, Spring Data JPA, Spring Security, and HikariCP pooling.</p>
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="p-4 text-center bg-white rounded-4 border h-100 billora-card">
-                        <div class="fs-1 text-info mb-3"><i class="bi bi-database"></i></div>
-                        <h5 class="fw-bold">PostgreSQL 16</h5>
-                        <p class="text-muted small mb-0">Relational ACID transactions, foreign keys, and indexes for bulletproof financial billing data.</p>
+                    <div class="p-4 text-center bg-white rounded-3 border h-100 billora-card">
+                        <div class="fs-2 text-dark mb-3"><i class="bi bi-database"></i></div>
+                        <h4 class="h5 fw-bold text-dark">PostgreSQL / H2</h4>
+                        <p class="text-muted small mb-0">Relational ACID transactions, financial precision, and local in-memory H2 dev profile.</p>
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="p-4 text-center bg-white rounded-4 border h-100 billora-card">
-                        <div class="fs-1 text-warning mb-3"><i class="bi bi-browser-chrome"></i></div>
-                        <h5 class="fw-bold">Thymeleaf &amp; BS5</h5>
-                        <p class="text-muted small mb-0">Server-rendered templates with clean fragment layouts, responsive flexbox, and zero hydration latency.</p>
+                    <div class="p-4 text-center bg-white rounded-3 border h-100 billora-card">
+                        <div class="fs-2 text-dark mb-3"><i class="bi bi-layout-text-window"></i></div>
+                        <h4 class="h5 fw-bold text-dark">Thymeleaf + CSS</h4>
+                        <p class="text-muted small mb-0">Server-rendered templates with clean fragment layouts and minimal design tokens.</p>
                     </div>
                 </div>
             </div>
