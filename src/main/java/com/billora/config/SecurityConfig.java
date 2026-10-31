@@ -34,8 +34,8 @@ public class SecurityConfig {
                 // Static resources
                 .requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**", "/favicon.ico").permitAll()
                 
-                // Public landing and authentication pages
-                .requestMatchers("/", "/login", "/register", "/access-denied", "/error").permitAll()
+                // Public landing, health check, and authentication pages
+                .requestMatchers("/", "/login", "/register", "/health", "/actuator/health", "/api/health", "/access-denied", "/error").permitAll()
                 
                 // Role-based dashboard restrictions:
                 // System Settings: ADMIN only

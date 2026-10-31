@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="en">
+<head th:replace="~{fragments/head :: head('Subscription Plans Management')}">
+    <title>Billora - Plans</title>
+</head>
+<body>
+<div class="dashboard-wrapper">
+    <aside th:replace="~{fragments/sidebar :: sidebar(${activePage})}"></aside>
+    <div class="dashboard-main">
+        <header th:replace="~{fragments/topbar :: topbar}"></header>
+
+        <main class="dashboard-content">
+            <!-- Header -->
+            <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+                <div>
+                    <h2 class="h3 fw-bold mb-1">Subscription Plans</h2>
+                    <p class="text-muted small mb-0">Configure recurring billing cycles (Daily, Weekly, Monthly, Yearly), pricing tiers, minimum quantities, and active dates.</p>
+                </div>
+                <div class="d-flex align-items-center gap-2" sec:authorize="hasAnyRole('ADMIN', 'STAFF')">
+                    <button type="button" class="btn btn-primary-billora btn-sm px-3 py-2 d-flex align-items-center gap-2"
+                            onclick="openCreatePlanModal()">
+                        <i class="bi bi-plus-lg"></i>
+                        <span>New Plan</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Flash Alerts -->
+            <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show d-flex align-items-center gap-2 mb-3" role="alert">
+                <i class="bi bi-check-circle-fill fs-5 text-success"></i>
+                <span th:text="${successMessage}">Success message</span>
+                <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show d-flex align-items-center gap-2 mb-3" role="alert">
+                <i class="bi bi-exclamation-triangle-fill fs-5 text-danger"></i>
+                <span th:text="${errorMessage}">Error message</span>
+                <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+            <!-- Plans Table Card -->
+            <div class="billora-card shadow-sm border-0">
+                <div class="p-3 border-bottom d-flex flex-wrap gap-2 align-items-center justify-content-between bg-white rounded-top">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="fw-bold text-dark fs-6">Configured Plans</span>
+                        <span class="badge bg-primary-subtle text-primary rounded-pill px-2" th:text="${#lists.size(plans)}">0</span>
+                    </div>
+                    <span class="text-muted small">PostgreSQL JPA: <code>com.billora.modules.subscription.Plan</code></span>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-billora align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Plan Details</th>
+                                <th>Code</th>
+                                <th>Linked Product</th>
+                                <th>Plan Price</th>
+                                <th>Billing Cycle</th>
+                                <th>Min Qty</th>
+                                <th>Schedule / Duration</th>
+                                <th>Trial</th>
+                                <th>Status</th>
+                                <th class="text-end" sec:authorize="hasAnyRole('ADMIN', 'STAFF')">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:if="${#lists.isEmpty(plans)}">
+                                <td colspan="10" class="text-center py-5 text-muted">
+                                    <i class="bi bi-tag fs-2 d-block mb-2 text-secondary"></i>
+                                    <div class="fw-semibold">No pricing plans configured yet.</div>
+                                    <div class="small">Click "New Plan" above to create your first subscription tier.</div>
+                                </td>
+                            </tr>
+                            <tr th:each="p : ${plans}">
+                                <td>
+                                    <div class="fw-semibold text-dark" th:text="${p.name}">Plan Name</div>
+                                    <small th:if="${p.highlight != null}" class="badge bg-warning-subtle text-warning border border-warning-subtle" th:text="${p.highlight}">Popular</small>
+                                </td>
+                                <td>
+                                    <span class="font-monospace text-primary small" th:text="${p.code}">STARTER</span>
+                                </td>
+                                <td>
+                                    <span th:if="${p.product != null}" class="badge bg-light text-dark border" th:text="${p.product.name}">Product</span>
+                                    <span th:if="${p.product == null}" class="text-muted small">All Products</span>
+                                </td>
+                                <td>
+                                    <span class="fw-bold text-dark" th:text="${currencySymbol} + ${#numbers.formatDecimal(p.price, 1, 'COMMA', 2, 'POINT')}">$99.00</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle" th:text="${p.billingCycle.label}">Monthly</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-light text-secondary border" th:text="${p.minQuantity} + ' min'">1 min</span>
+                                </td>
+                                <td>
+                                    <div class="small text-muted" th:if="${p.startDate != null or p.endDate != null}">
+                                        <span th:if="${p.startDate != null}" th:text="'From ' + ${p.startDate}">From 2026-01-01</span>
+                                        <span th:if="${p.endDate != null}" th:text="' to ' + ${p.endDate}"> to 2026-12-31</span>
+                                    </div>
+                                    <span th:if="${p.startDate == null and p.endDate == null}" class="text-muted small">Ongoing</span>
+                                </td>
+                                <td>
+                                    <span th:if="${p.trialDays > 0}" class="text-info small" th:text="${p.trialDays} + ' days'">14 days</span>
+                                    <span th:if="${p.trialDays == 0}" class="text-muted small">None</span>
+                                </td>
+                                <td>
+                                    <span th:if="${p.active}" class="badge bg-success-subtle text-success">Enabled</span>
+                                    <span th:unless="${p.active}" class="badge bg-secondary-subtle text-secondary">Disabled</span>
+                                </td>
+                                <td class="text-end" sec:authorize="hasAnyRole('ADMIN', 'STAFF')">
+                                    <div class="d-inline-flex gap-1">
+                                        <!-- Edit button using data attributes -->
+                                        <button type="button" class="btn btn-sm btn-light border px-2 py-1"
+                                                th:data-id="${p.id}"
+                                                th:data-name="${p.name}"
+                                                th:data-code="${p.code}"
+                                                th:data-product-id="${p.product != null ? p.product.id : ''}"
+                                                th:data-price="${p.price}"
+                                                th:data-cycle="${p.billingCycle.name()}"
+                                                th:data-min-qty="${p.minQuantity}"
+                                                th:data-start-date="${p.startDate}"
+                                                th:data-end-date="${p.endDate}"
+                                                th:data-trial="${p.trialDays}"
+                                                th:data-highlight="${p.highlight}"
+                                                th:data-desc="${p.description}"
+                                                th:data-active="${p.active}"
+                                                onclick="openEditPlanModalFromBtn(this)"
+                                                title="Edit Plan">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <!-- Toggle Status (Enable/Disable) -->
+                                        <form th:action="@{/dashboard/plans/{id}/toggle(id=${p.id})}" method="post" class="d-inline">
+                                            <button type="submit" class="btn btn-sm px-2 py-1"
+                                                    th:classappend="${p.active} ? 'btn-outline-warning' : 'btn-outline-success'"
+                                                    th:title="${p.active} ? 'Disable Plan' : 'Enable Plan'">
+                                                <i th:class="${p.active} ? 'bi bi-pause-circle' : 'bi bi-play-circle'"></i>
+                                            </button>
+                                        </form>
+                                        <!-- Delete (ADMIN only) -->
+                                        <form th:action="@{/dashboard/plans/{id}/delete(id=${p.id})}" method="post" class="d-inline"
+                                              sec:authorize="hasRole('ADMIN')"
+                                              onsubmit="return confirm('Delete this pricing plan? Linked subscriptions might be affected.');">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger px-2 py-1" title="Delete Plan">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+        <footer th:replace="~{fragments/footer :: footer}"></footer>
+    </div>
+</div>
+
+<!-- Add / Edit Plan Modal -->
+<div class="modal fade" id="planModal" tabindex="-1" aria-labelledby="planModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-bottom px-4 py-3 bg-light">
+                <h5 class="modal-title fw-bold" id="planModalLabel">
+                    <i class="bi bi-tag me-1 text-primary"></i> <span id="planModalTitleText">New Subscription Plan</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form th:action="@{/dashboard/plans}" th:object="${planDto}" method="post">
+                <div class="modal-body px-4 py-3">
+                    <input type="hidden" th:field="*{id}" id="planId"/>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Plan Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" th:field="*{name}" id="planName" placeholder="e.g. Pro Monthly Growth" required/>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Plan Code / Identifier</label>
+                            <input type="text" class="form-control" th:field="*{code}" id="planCode" placeholder="Auto-generated if blank"/>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Linked Product</label>
+                            <select class="form-select" th:field="*{productId}" id="planProductId">
+                                <option value="">-- All Products / General --</option>
+                                <option th:each="prod : ${products}" th:value="${prod.id}" th:text="${prod.name} + ' (' + ${prod.code} + ')'">Product</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Highlight Badge</label>
+                            <input type="text" class="form-control" th:field="*{highlight}" id="planHighlight" placeholder="e.g. Best Value, Recommended"/>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Plan Price (<span th:text="${currencySymbol}">$</span>) <span class="text-danger">*</span></label>
+                            <input type="number" step="0.01" min="0" class="form-control" th:field="*{price}" id="planPrice" required/>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Billing Cycle <span class="text-danger">*</span></label>
+                            <select class="form-select" th:field="*{billingCycle}" id="planCycle" required>
+                                <option th:each="bc : ${billingCycles}" th:value="${bc.name()}" th:text="${bc.label}">Monthly</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Minimum Quantity <span class="text-danger">*</span></label>
+                            <input type="number" min="1" class="form-control" th:field="*{minQuantity}" id="planMinQuantity" value="1" required/>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Start Date</label>
+                            <input type="date" class="form-control" th:field="*{startDate}" id="planStartDate"/>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">End Date (Optional)</label>
+                            <input type="date" class="form-control" th:field="*{endDate}" id="planEndDate"/>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Free Trial (Days)</label>
+                            <input type="number" min="0" class="form-control" th:field="*{trialDays}" id="planTrialDays" value="0"/>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Description &amp; Feature Limits</label>
+                            <textarea class="form-control" th:field="*{description}" id="planDescription" rows="2" placeholder="Included capabilities, quota limits, and support tier details..."></textarea>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" th:field="*{active}" id="planActive" checked>
+                                <label class="form-check-label fw-semibold" for="planActive">Enable Plan (Make active and available for subscriptions)</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-top px-4 py-3 bg-light">
+                    <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary-billora px-4">
+                        <i class="bi bi-check-lg me-1"></i> Save Plan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/scripts :: scripts}"></div>
+<script th:if="${openModal}">
+    document.addEventListener("DOMContentLoaded", function () {
+        var modalEl = document.getElementById('planModal');
+        if (modalEl) {
+            new bootstrap.Modal(modalEl).show();
+        }
+    });
+</script>
+<script>
+    function openCreatePlanModal() {
+        document.getElementById('planModalTitleText').textContent = 'New Subscription Plan';
+        document.getElementById('planId').value = '';
+        document.getElementById('planName').value = '';
+        document.getElementById('planCode').value = '';
+        document.getElementById('planProductId').value = '';
+        document.getElementById('planHighlight').value = '';
+        document.getElementById('planPrice').value = '49.00';
+        document.getElementById('planCycle').value = 'MONTHLY';
+        document.getElementById('planMinQuantity').value = '1';
+        document.getElementById('planStartDate').value = new Date().toISOString().split('T')[0];
+        document.getElementById('planEndDate').value = '';
+        document.getElementById('planTrialDays').value = '0';
+        document.getElementById('planDescription').value = '';
+        document.getElementById('planActive').checked = true;
+        new bootstrap.Modal(document.getElementById('planModal')).show();
+    }
+
+    function openEditPlanModalFromBtn(btn) {
+        var id = btn.getAttribute('data-id');
+        var name = btn.getAttribute('data-name');
+        var code = btn.getAttribute('data-code');
+        var productId = btn.getAttribute('data-product-id');
+        var price = btn.getAttribute('data-price');
+        var cycle = btn.getAttribute('data-cycle');
+        var minQty = btn.getAttribute('data-min-qty');
+        var startDate = btn.getAttribute('data-start-date');
+        var endDate = btn.getAttribute('data-end-date');
+        var trial = btn.getAttribute('data-trial');
+        var highlight = btn.getAttribute('data-highlight');
+        var desc = btn.getAttribute('data-desc');
+        var active = btn.getAttribute('data-active') === 'true';
+
+        document.getElementById('planModalTitleText').textContent = 'Edit Subscription Plan';
+        document.getElementById('planId').value = id;
+        document.getElementById('planName').value = name;
+        document.getElementById('planCode').value = code;
+        document.getElementById('planProductId').value = productId ? productId : '';
+        document.getElementById('planHighlight').value = (highlight && highlight !== 'null') ? highlight : '';
+        document.getElementById('planPrice').value = price;
+        document.getElementById('planCycle').value = cycle;
+        document.getElementById('planMinQuantity').value = minQty ? minQty : 1;
+        document.getElementById('planStartDate').value = (startDate && startDate !== 'null') ? startDate : '';
+        document.getElementById('planEndDate').value = (endDate && endDate !== 'null') ? endDate : '';
+        document.getElementById('planTrialDays').value = trial ? trial : 0;
+        document.getElementById('planDescription').value = (desc && desc !== 'null') ? desc : '';
+        document.getElementById('planActive').checked = active;
+        new bootstrap.Modal(document.getElementById('planModal')).show();
+    }
+</script>
+</body>
+</html>

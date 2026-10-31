@@ -44,17 +44,33 @@
                 </a>
             </li>
             <li class="nav-item">
+                <a th:href="@{/dashboard/products}" class="sidebar-nav-link" th:classappend="${activePage == 'products' ? 'active' : ''}">
+                    <i class="bi bi-box-seam"></i>
+                    <span>Products</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a th:href="@{/dashboard/plans}" class="sidebar-nav-link" th:classappend="${activePage == 'plans' ? 'active' : ''}">
+                    <i class="bi bi-tag-fill"></i>
+                    <span>Pricing Plans</span>
+                </a>
+            </li>
+            <li class="nav-item">
                 <a th:href="@{/dashboard/subscriptions}" class="sidebar-nav-link" th:classappend="${activePage == 'subscriptions' ? 'active' : ''}">
                     <i class="bi bi-arrow-repeat"></i>
                     <span>Subscriptions</span>
-                    <span class="sidebar-badge bg-primary text-white">1,482</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a th:href="@{/dashboard/invoices}" class="sidebar-nav-link" th:classappend="${activePage == 'invoices' ? 'active' : ''}">
                     <i class="bi bi-receipt-cutoff"></i>
                     <span>Invoices &amp; Billing</span>
-                    <span class="sidebar-badge bg-warning text-dark">8 open</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a th:href="@{/dashboard/payments}" class="sidebar-nav-link" th:classappend="${activePage == 'payments' ? 'active' : ''}">
+                    <i class="bi bi-credit-card-2-front-fill"></i>
+                    <span>Payments</span>
                 </a>
             </li>
             <li class="nav-item">

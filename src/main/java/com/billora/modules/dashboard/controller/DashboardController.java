@@ -32,31 +32,6 @@ public class DashboardController {
         return "dashboard/index";
     }
 
-    @GetMapping("/subscriptions")
-    public String subscriptions(Model model) {
-        DashboardSummaryDto summary = dashboardService.getDashboardSummary();
-        model.addAttribute("appName", appName);
-        model.addAttribute("currencySymbol", currencySymbol);
-        model.addAttribute("subscriptions", summary.getRecentSubscriptions());
-        model.addAttribute("activePage", "subscriptions");
-        return "dashboard/subscriptions";
-    }
-
-    @GetMapping("/invoices")
-    public String invoices(Model model) {
-        model.addAttribute("appName", appName);
-        model.addAttribute("currencySymbol", currencySymbol);
-        model.addAttribute("activePage", "invoices");
-        return "dashboard/invoices";
-    }
-
-    @GetMapping("/customers")
-    public String customers(Model model) {
-        model.addAttribute("appName", appName);
-        model.addAttribute("currencySymbol", currencySymbol);
-        model.addAttribute("activePage", "customers");
-        return "dashboard/customers";
-    }
 
     @GetMapping("/analytics")
     public String analytics(Model model) {

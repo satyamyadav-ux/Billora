@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/head :: head('Invoice ' + ${invoice.invoiceNumber})}">
+    <title>Billora - Invoice Details</title>
+</head>
+<body>
+<div class="dashboard-wrapper">
+    <aside th:replace="~{fragments/sidebar :: sidebar('invoices')}"></aside>
+    <div class="dashboard-main">
+        <header th:replace="~{fragments/topbar :: topbar}"></header>
+
+        <main class="dashboard-content">
+            <!-- Header with Print & Back Buttons -->
+            <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4 d-print-none">
+                <div>
+                    <a th:href="@{/dashboard/invoices}" class="text-decoration-none text-muted small d-inline-flex align-items-center gap-1 mb-1">
+                        <i class="bi bi-arrow-left"></i> Back to Invoices
+                    </a>
+                    <h2 class="h3 fw-bold mb-0">Invoice <span class="font-monospace text-primary" th:text="${invoice.invoiceNumber}">INV-1001</span></h2>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <button type="button" class="btn btn-outline-secondary btn-sm px-3 py-2 d-flex align-items-center gap-2" onclick="window.print()">
+                        <i class="bi bi-printer"></i>
+                        <span>Print Invoice</span>
+                    </button>
+                    <form th:if="${invoice.status.name() != 'PAID' and invoice.status.name() != 'CANCELLED'}" th:action="@{/dashboard/invoices/{id}/pay(id=${invoice.id})}" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-success btn-sm px-3 py-2 d-flex align-items-center gap-2">
+                            <i class="bi bi-cash-stack"></i>
+                            <span>Mark as Paid</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Printable Invoice Card -->
+            <div class="card border-0 shadow-sm p-4 p-md-5 bg-white rounded-3">
+                <!-- Invoice Header -->
+                <div class="d-flex justify-content-between align-items-start border-bottom pb-4 mb-4">
+                    <div>
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <span class="brand-logo-mark" style="width: 38px; height: 38px; font-size: 1.25rem;">B</span>
+                            <span class="fs-4 brand-font fw-bold text-dark" th:text="${appName}">Billora</span>
+                        </div>
+                        <div class="text-muted small">Subscription &amp; Recurring Billing Engine</div>
+                        <div class="text-muted small">billing@billora.com</div>
+                    </div>
+                    <div class="text-end">
+                        <span th:class="${invoice.status.badgeClass} + ' fs-6 px-3 py-1 mb-2 d-inline-block'" th:text="${invoice.status.label}">Paid</span>
+                        <h4 class="fw-bold font-monospace text-dark mb-1" th:text="${invoice.invoiceNumber}">INV-1001</h4>
+                        <div class="text-muted small">Issue Date: <strong th:text="${invoice.issueDate}">2026-10-31</strong></div>
+                        <div class="text-muted small">Due Date: <strong th:text="${invoice.dueDate}">2026-11-30</strong></div>
+                    </div>
+                </div>
+
+                <!-- Billed To & Subscription Details -->
+                <div class="row g-4 mb-4">
+                    <div class="col-md-6">
+                        <h6 class="text-muted fw-bold small text-uppercase">Billed To</h6>
+                        <h5 class="fw-bold text-dark mb-1" th:text="${invoice.customer.name}">Customer Name</h5>
+                        <div class="text-muted small" th:if="${invoice.customer.company != null}" th:text="${invoice.customer.company}">Acme Inc.</div>
+                        <div class="text-muted small" th:text="${invoice.customer.email}">billing@example.com</div>
+                        <div class="text-muted small" th:if="${invoice.customer.phone != null}" th:text="${invoice.customer.phone}">+1 555-0100</div>
+                        <div class="text-muted small" th:if="${invoice.customer.address != null}" th:text="${invoice.customer.address}">100 Market St, San Francisco, CA</div>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <h6 class="text-muted fw-bold small text-uppercase">Subscription Details</h6>
+                        <div th:if="${invoice.subscription != null}">
+                            <div class="fw-bold text-dark" th:text="${invoice.subscription.plan.name}">Pro Growth Plan</div>
+                            <div class="text-muted small font-monospace" th:text="'Code: ' + ${invoice.subscription.subscriptionCode}">SUB-8492</div>
+                            <div class="text-muted small" th:text="'Billing Cycle: ' + ${invoice.subscription.billingCycle.label}">Monthly</div>
+                            <div class="text-muted small" th:text="'Terms: ' + ${invoice.subscription.paymentTerms}">Due on Receipt</div>
+                        </div>
+                        <div th:if="${invoice.subscription == null}" class="text-muted small">Direct invoice for professional services</div>
+                    </div>
+                </div>
+
+                <!-- Line Items Table -->
+                <div class="table-responsive mb-4">
+                    <table class="table table-bordered align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Item Description</th>
+                                <th class="text-center" style="width: 100px;">Qty</th>
+                                <th class="text-end" style="width: 140px;">Unit Price</th>
+                                <th class="text-end" style="width: 140px;">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="item : ${invoice.items}">
+                                <td>
+                                    <strong th:text="${item.description}">Subscription Plan Item</strong>
+                                    <small th:if="${item.product != null}" class="badge bg-light text-secondary border ms-1" th:text="${item.product.name}">Product</small>
+                                </td>
+                                <td class="text-center" th:text="${item.quantity}">1</td>
+                                <td class="text-end" th:text="${currencySymbol} + ${#numbers.formatDecimal(item.unitPrice, 1, 'COMMA', 2, 'POINT')}">$99.00</td>
+                                <td class="text-end fw-semibold" th:text="${currencySymbol} + ${#numbers.formatDecimal(item.totalPrice, 1, 'COMMA', 2, 'POINT')}">$99.00</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Totals Section -->
+                <div class="row justify-content-end mb-4">
+                    <div class="col-md-5">
+                        <div class="p-3 bg-light rounded border">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted small">Subtotal:</span>
+                                <strong th:text="${currencySymbol} + ${#numbers.formatDecimal(invoice.subtotal, 1, 'COMMA', 2, 'POINT')}">$99.00</strong>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2" th:if="${invoice.discountAmount > 0}">
+                                <span class="text-success small">Discount:</span>
+                                <strong class="text-success" th:text="'- ' + ${currencySymbol} + ${#numbers.formatDecimal(invoice.discountAmount, 1, 'COMMA', 2, 'POINT')}">-$10.00</strong>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2" th:if="${invoice.taxRate > 0 or invoice.taxAmount > 0}">
+                                <span class="text-muted small" th:text="'Tax (' + ${invoice.taxRate} + '%):'">Tax (10%):</span>
+                                <strong th:text="${currencySymbol} + ${#numbers.formatDecimal(invoice.taxAmount, 1, 'COMMA', 2, 'POINT')}">$9.90</strong>
+                            </div>
+                            <div class="d-flex justify-content-between border-top pt-2 mt-2">
+                                <span class="fw-bold fs-6 text-dark">Total Amount Due:</span>
+                                <span class="fw-bold fs-5 text-primary" th:text="${currencySymbol} + ${#numbers.formatDecimal(invoice.totalAmount, 1, 'COMMA', 2, 'POINT')}">$108.90</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notes / Payment Info -->
+                <div class="border-top pt-3 text-muted small">
+                    <h6 class="fw-semibold text-dark mb-1">Notes &amp; Payment Instructions</h6>
+                    <p class="mb-0" th:text="${invoice.notes != null ? invoice.notes : 'Thank you for your business. Please remit payment via bank transfer or online portal before the due date.'}"></p>
+                </div>
+            </div>
+        </main>
+        <footer th:replace="~{fragments/footer :: footer}"></footer>
+    </div>
+</div>
+<div th:replace="~{fragments/scripts :: scripts}"></div>
+</body>
+</html>

@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="en">
+<head th:replace="~{fragments/head :: head('Products &amp; Variants Management')}">
+    <title>Billora - Products</title>
+</head>
+<body>
+<div class="dashboard-wrapper">
+    <aside th:replace="~{fragments/sidebar :: sidebar(${activePage})}"></aside>
+    <div class="dashboard-main">
+        <header th:replace="~{fragments/topbar :: topbar}"></header>
+
+        <main class="dashboard-content">
+            <!-- Header -->
+            <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+                <div>
+                    <h2 class="h3 fw-bold mb-1">Products &amp; Offerings</h2>
+                    <p class="text-muted small mb-0">Manage your product catalog, sales &amp; cost pricing, categories, and item variants.</p>
+                </div>
+                <div class="d-flex align-items-center gap-2" sec:authorize="hasAnyRole('ADMIN', 'STAFF')">
+                    <button type="button" class="btn btn-primary-billora btn-sm px-3 py-2 d-flex align-items-center gap-2"
+                            onclick="openCreateModal()">
+                        <i class="bi bi-plus-lg"></i>
+                        <span>New Product</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Flash Alerts -->
+            <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show d-flex align-items-center gap-2 mb-3" role="alert">
+                <i class="bi bi-check-circle-fill fs-5 text-success"></i>
+                <span th:text="${successMessage}">Success message</span>
+                <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show d-flex align-items-center gap-2 mb-3" role="alert">
+                <i class="bi bi-exclamation-triangle-fill fs-5 text-danger"></i>
+                <span th:text="${errorMessage}">Error message</span>
+                <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+            <!-- Products Table Card -->
+            <div class="billora-card shadow-sm border-0">
+                <div class="p-3 border-bottom d-flex flex-wrap gap-2 align-items-center justify-content-between bg-white rounded-top">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="fw-bold text-dark fs-6">Product Catalog</span>
+                        <span class="badge bg-primary-subtle text-primary rounded-pill px-2" th:text="${#lists.size(products)}">0</span>
+                    </div>
+                    <span class="text-muted small">PostgreSQL JPA Catalog</span>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-billora align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Product Name &amp; Code</th>
+                                <th>Type</th>
+                                <th>Sales Price</th>
+                                <th>Cost Price</th>
+                                <th>Variants</th>
+                                <th>Description</th>
+                                <th>Status</th>
+                                <th class="text-end" sec:authorize="hasAnyRole('ADMIN', 'STAFF')">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:if="${#lists.isEmpty(products)}">
+                                <td colspan="8" class="text-center py-5 text-muted">
+                                    <i class="bi bi-box-seam fs-2 d-block mb-2 text-secondary"></i>
+                                    <div class="fw-semibold">No products found in the catalog.</div>
+                                    <div class="small">Click "New Product" above to create your first product.</div>
+                                </td>
+                            </tr>
+                            <tr th:each="prod : ${products}">
+                                <td>
+                                    <div class="fw-semibold text-dark" th:text="${prod.name}">Cloud Platform</div>
+                                    <span class="badge bg-light text-primary font-monospace border small" th:text="${prod.code}">PRD-CLOUD</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-info-subtle text-info border border-info-subtle" th:text="${prod.productType != null ? prod.productType : 'SaaS'}">SaaS</span>
+                                </td>
+                                <td>
+                                    <span class="fw-bold text-dark" th:text="${currencySymbol} + ${#numbers.formatDecimal(prod.salesPrice, 1, 'COMMA', 2, 'POINT')}">$149.00</span>
+                                </td>
+                                <td>
+                                    <span class="text-muted small" th:text="${prod.costPrice != null ? (currencySymbol + #numbers.formatDecimal(prod.costPrice, 1, 'COMMA', 2, 'POINT')) : '—'}">$45.00</span>
+                                </td>
+                                <td>
+                                    <button type="button" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1 py-0 px-2"
+                                            th:data-id="${prod.id}"
+                                            th:data-name="${prod.name}"
+                                            th:data-sales-price="${prod.salesPrice}"
+                                            th:data-count="${prod.variants != null ? #lists.size(prod.variants) : 0}"
+                                            onclick="openVariantsModalFromBtn(this)"
+                                            title="View &amp; Manage Variants">
+                                        <i class="bi bi-diagram-3"></i>
+                                        <span th:text="(${prod.variants != null ? #lists.size(prod.variants) : 0}) + ' variant(s)'">2 variant(s)</span>
+                                    </button>
+                                    <!-- Hidden Variant Data Store for JS modal reading -->
+                                    <div th:id="'variants-data-' + ${prod.id}" class="d-none">
+                                        <div th:each="v : ${prod.variants}"
+                                             th:data-id="${v.id}"
+                                             th:data-name="${v.variantName}"
+                                             th:data-sku="${v.sku}"
+                                             th:data-addprice="${v.additionalPrice}"
+                                             th:data-active="${v.active}">
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="text-muted small text-truncate d-inline-block" style="max-width: 200px;" th:text="${prod.description != null ? prod.description : '—'}">Description</span>
+                                </td>
+                                <td>
+                                    <span th:if="${prod.active}" class="badge bg-success-subtle text-success">Active</span>
+                                    <span th:unless="${prod.active}" class="badge bg-secondary-subtle text-secondary">Inactive</span>
+                                </td>
+                                <td class="text-end" sec:authorize="hasAnyRole('ADMIN', 'STAFF')">
+                                    <div class="d-inline-flex gap-1">
+                                        <!-- Edit button using data attributes -->
+                                        <button type="button" class="btn btn-sm btn-light border px-2 py-1"
+                                                th:data-id="${prod.id}"
+                                                th:data-name="${prod.name}"
+                                                th:data-code="${prod.code}"
+                                                th:data-type="${prod.productType}"
+                                                th:data-sales-price="${prod.salesPrice}"
+                                                th:data-cost-price="${prod.costPrice}"
+                                                th:data-desc="${prod.description}"
+                                                th:data-active="${prod.active}"
+                                                onclick="openEditModalFromBtn(this)"
+                                                title="Edit Product">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <!-- Toggle Status -->
+                                        <form th:action="@{/dashboard/products/{id}/toggle(id=${prod.id})}" method="post" class="d-inline">
+                                            <button type="submit" class="btn btn-sm px-2 py-1"
+                                                    th:classappend="${prod.active} ? 'btn-outline-warning' : 'btn-outline-success'"
+                                                    th:title="${prod.active} ? 'Deactivate Product' : 'Activate Product'">
+                                                <i th:class="${prod.active} ? 'bi bi-pause-circle' : 'bi bi-play-circle'"></i>
+                                            </button>
+                                        </form>
+                                        <!-- Delete (ADMIN only) -->
+                                        <form th:action="@{/dashboard/products/{id}/delete(id=${prod.id})}" method="post" class="d-inline"
+                                              sec:authorize="hasRole('ADMIN')"
+                                              onsubmit="return confirm('Delete this product permanently? Linked plans and subscriptions may be affected.');">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger px-2 py-1" title="Delete Product">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+        <footer th:replace="~{fragments/footer :: footer}"></footer>
+    </div>
+</div>
+
+<!-- Add / Edit Product Modal -->
+<div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-bottom px-4 py-3 bg-light">
+                <h5 class="modal-title fw-bold" id="productModalLabel">
+                    <i class="bi bi-box-seam me-1 text-primary"></i> <span id="modalTitleText">New Product</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form th:action="@{/dashboard/products}" th:object="${productDto}" method="post">
+                <div class="modal-body px-4 py-3">
+                    <input type="hidden" th:field="*{id}" id="prodId"/>
+                    <div class="row g-3">
+                        <div class="col-md-7">
+                            <label class="form-label fw-semibold">Product Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" th:field="*{name}" id="prodName" placeholder="e.g. Cloud Storage Suite" required/>
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label fw-semibold">Product Type <span class="text-danger">*</span></label>
+                            <select class="form-select" th:field="*{productType}" id="prodType" required>
+                                <option value="SaaS">SaaS (Software as a Service)</option>
+                                <option value="Digital Service">Digital Service</option>
+                                <option value="Physical">Physical Goods</option>
+                                <option value="Professional Services">Professional Services</option>
+                                <option value="API &amp; Developer">API &amp; Developer</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Sales Price (<span th:text="${currencySymbol}">$</span>) <span class="text-danger">*</span></label>
+                            <input type="number" step="0.01" min="0" class="form-control" th:field="*{salesPrice}" id="prodSalesPrice" required/>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Cost Price (<span th:text="${currencySymbol}">$</span>)</label>
+                            <input type="number" step="0.01" min="0" class="form-control" th:field="*{costPrice}" id="prodCostPrice" placeholder="0.00"/>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Code / SKU</label>
+                            <input type="text" class="form-control" th:field="*{code}" id="prodCode" placeholder="Auto-generated if empty"/>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Description</label>
+                            <textarea class="form-control" th:field="*{description}" id="prodDesc" rows="3" placeholder="Detailed product description, capabilities, and delivery details..."></textarea>
+                        </div>
+
+                        <!-- Initial variant (Shown only during creation) -->
+                        <div class="col-12" id="initialVariantSection">
+                            <div class="p-3 bg-light rounded border">
+                                <div class="fw-semibold small text-primary mb-2">
+                                    <i class="bi bi-diagram-3 me-1"></i> Optional: Add Initial Product Variant
+                                </div>
+                                <div class="row g-2">
+                                    <div class="col-md-7">
+                                        <input type="text" class="form-control form-control-sm" th:field="*{initialVariantName}" id="prodInitVarName" placeholder="e.g. Standard Tier, 16GB Node, Black"/>
+                                    </div>
+                                    <div class="col-md-5">
+                                        <div class="input-group input-group-sm">
+                                            <span class="input-group-text">+ <span th:text="${currencySymbol}">$</span></span>
+                                            <input type="number" step="0.01" min="0" class="form-control" th:field="*{initialVariantAdditionalPrice}" id="prodInitVarPrice" placeholder="Additional Price (0.00)"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" th:field="*{active}" id="prodActive" checked>
+                                <label class="form-check-label" for="prodActive">Product is Active &amp; available</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-top px-4 py-3 bg-light">
+                    <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary-billora px-4">
+                        <i class="bi bi-check-lg me-1"></i> Save Product
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Manage Product Variants Modal -->
+<div class="modal fade" id="variantsModal" tabindex="-1" aria-labelledby="variantsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-bottom px-4 py-3 bg-light">
+                <h5 class="modal-title fw-bold" id="variantsModalLabel">
+                    <i class="bi bi-diagram-3 me-1 text-primary"></i> Variants for <span id="varModalProductName" class="text-primary">Product</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body px-4 py-3">
+                <!-- Base Product Info Summary -->
+                <div class="d-flex align-items-center justify-content-between p-2 mb-3 bg-light rounded border">
+                    <div>
+                        <span class="text-muted small">Base Product Sales Price:</span>
+                        <strong class="ms-1" id="varModalBasePrice">$0.00</strong>
+                    </div>
+                    <span class="badge bg-primary-subtle text-primary" id="varModalCountBadge">0 Variants</span>
+                </div>
+
+                <!-- Existing Variants List Table -->
+                <div class="table-responsive mb-4">
+                    <table class="table table-sm table-bordered align-middle mb-0" id="variantsTable">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Variant Name</th>
+                                <th>SKU</th>
+                                <th>Additional Price</th>
+                                <th>Total Effective Price</th>
+                                <th>Status</th>
+                                <th class="text-end" sec:authorize="hasAnyRole('ADMIN', 'STAFF')">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="variantsTableBody">
+                            <!-- Populated dynamically via JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Add New Variant Form -->
+                <div class="card border border-primary-subtle bg-light-subtle" sec:authorize="hasAnyRole('ADMIN', 'STAFF')">
+                    <div class="card-body p-3">
+                        <h6 class="fw-bold mb-2 text-dark">
+                            <i class="bi bi-plus-circle me-1 text-primary"></i> Add New Variant
+                        </h6>
+                        <form id="addVariantForm" method="post" action="">
+                            <div class="row g-2 align-items-end">
+                                <div class="col-md-5">
+                                    <label class="form-label small fw-semibold mb-1">Variant Name <span class="text-danger">*</span></label>
+                                    <input type="text" name="variantName" class="form-control form-control-sm" placeholder="e.g. Pro 32GB RAM" required/>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small fw-semibold mb-1">SKU (Optional)</label>
+                                    <input type="text" name="sku" class="form-control form-control-sm" placeholder="e.g. PRO-32GB"/>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label small fw-semibold mb-1">Additional Price</label>
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text">+</span>
+                                        <input type="number" step="0.01" min="0" name="additionalPrice" class="form-control" value="0.00" required/>
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <button type="submit" class="btn btn-primary-billora btn-sm w-100">
+                                        <i class="bi bi-plus-lg me-1"></i> Add
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-top px-4 py-2 bg-light">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/scripts :: scripts}"></div>
+<script th:if="${openModal}">
+    document.addEventListener("DOMContentLoaded", function () {
+        var modalEl = document.getElementById('productModal');
+        if (modalEl) {
+            new bootstrap.Modal(modalEl).show();
+        }
+    });
+</script>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var currencySymbol = /*[[${currencySymbol}]]*/ '$';
+
+    function openCreateModal() {
+        document.getElementById('modalTitleText').textContent = 'New Product';
+        document.getElementById('prodId').value = '';
+        document.getElementById('prodName').value = '';
+        document.getElementById('prodType').value = 'SaaS';
+        document.getElementById('prodSalesPrice').value = '49.00';
+        document.getElementById('prodCostPrice').value = '0.00';
+        document.getElementById('prodCode').value = '';
+        document.getElementById('prodDesc').value = '';
+        document.getElementById('prodInitVarName').value = '';
+        document.getElementById('prodInitVarPrice').value = '';
+        document.getElementById('initialVariantSection').classList.remove('d-none');
+        document.getElementById('prodActive').checked = true;
+        new bootstrap.Modal(document.getElementById('productModal')).show();
+    }
+
+    function openEditModalFromBtn(btn) {
+        var id = btn.getAttribute('data-id');
+        var name = btn.getAttribute('data-name');
+        var code = btn.getAttribute('data-code');
+        var type = btn.getAttribute('data-type');
+        var salesPrice = btn.getAttribute('data-sales-price');
+        var costPrice = btn.getAttribute('data-cost-price');
+        var desc = btn.getAttribute('data-desc');
+        var active = btn.getAttribute('data-active') === 'true';
+
+        document.getElementById('modalTitleText').textContent = 'Edit Product';
+        document.getElementById('prodId').value = id;
+        document.getElementById('prodName').value = name;
+        document.getElementById('prodCode').value = code;
+        document.getElementById('prodType').value = type ? type : 'SaaS';
+        document.getElementById('prodSalesPrice').value = salesPrice;
+        document.getElementById('prodCostPrice').value = costPrice ? costPrice : '0.00';
+        document.getElementById('prodDesc').value = desc ? desc : '';
+        document.getElementById('initialVariantSection').classList.add('d-none');
+        document.getElementById('prodActive').checked = active;
+        new bootstrap.Modal(document.getElementById('productModal')).show();
+    }
+
+    function openVariantsModalFromBtn(btn) {
+        var productId = btn.getAttribute('data-id');
+        var productName = btn.getAttribute('data-name');
+        var baseSalesPrice = parseFloat(btn.getAttribute('data-sales-price')) || 0;
+        var count = btn.getAttribute('data-count') || 0;
+
+        document.getElementById('varModalProductName').textContent = productName;
+        document.getElementById('varModalBasePrice').textContent = currencySymbol + baseSalesPrice.toFixed(2);
+        document.getElementById('varModalCountBadge').textContent = count + ' Variant(s)';
+        
+        // Setup form action for adding new variant
+        document.getElementById('addVariantForm').action = '/dashboard/products/' + productId + '/variants';
+
+        // Read variant data from hidden container
+        var container = document.getElementById('variants-data-' + productId);
+        var tbody = document.getElementById('variantsTableBody');
+        tbody.innerHTML = '';
+
+        if (!container || container.children.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-3">No variants created for this product yet. Use the form below to add one.</td></tr>';
+        } else {
+            for (var i = 0; i < container.children.length; i++) {
+                var el = container.children[i];
+                var vId = el.getAttribute('data-id');
+                var vName = el.getAttribute('data-name');
+                var vSku = el.getAttribute('data-sku') || '—';
+                var vAddPrice = parseFloat(el.getAttribute('data-addprice')) || 0;
+                var vActive = el.getAttribute('data-active') === 'true';
+
+                var totalPrice = baseSalesPrice + vAddPrice;
+
+                var tr = document.createElement('tr');
+                tr.innerHTML = 
+                    '<td><strong>' + escapeHtml(vName) + '</strong></td>' +
+                    '<td><code class="text-muted">' + escapeHtml(vSku) + '</code></td>' +
+                    '<td><span class="text-success fw-semibold">+' + currencySymbol + vAddPrice.toFixed(2) + '</span></td>' +
+                    '<td><span class="fw-bold text-dark">' + currencySymbol + totalPrice.toFixed(2) + '</span></td>' +
+                    '<td>' + (vActive ? '<span class="badge bg-success-subtle text-success">Active</span>' : '<span class="badge bg-secondary-subtle text-secondary">Inactive</span>') + '</td>' +
+                    '<td class="text-end">' +
+                        '<form action="/dashboard/products/variants/' + vId + '/delete" method="post" style="display:inline;" onsubmit="return confirm(\'Delete variant ' + escapeHtml(vName) + '?\');">' +
+                            '<button type="submit" class="btn btn-sm btn-outline-danger py-0 px-2" title="Delete Variant"><i class="bi bi-trash"></i></button>' +
+                        '</form>' +
+                    '</td>';
+                tbody.appendChild(tr);
+            }
+        }
+
+        new bootstrap.Modal(document.getElementById('variantsModal')).show();
+    }
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        var map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        };
+        return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+    }
+    /*]]>*/
+</script>
+</body>
+</html>

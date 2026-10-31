@@ -1,12 +1,16 @@
 package com.billora.core.enums;
 
 public enum SubscriptionStatus {
-    TRIALING("Trialing", "badge bg-info-subtle text-info"),
-    ACTIVE("Active", "badge bg-success-subtle text-success"),
-    PAST_DUE("Past Due", "badge bg-warning-subtle text-warning"),
-    PAUSED("Paused", "badge bg-secondary-subtle text-secondary"),
-    CANCELLED("Cancelled", "badge bg-danger-subtle text-danger"),
-    EXPIRED("Expired", "badge bg-dark-subtle text-dark");
+    DRAFT("Draft", "badge bg-light text-secondary border"),
+    QUOTATION("Quotation", "badge bg-primary-subtle text-primary border border-primary-subtle"),
+    CONFIRMED("Confirmed", "badge bg-info-subtle text-info border border-info-subtle"),
+    ACTIVE("Active", "badge bg-success-subtle text-success border border-success-subtle"),
+    PAUSED("Paused", "badge bg-warning-subtle text-warning border border-warning-subtle"),
+    CLOSED("Closed", "badge bg-secondary-subtle text-secondary border border-secondary-subtle"),
+    CANCELLED("Cancelled", "badge bg-danger-subtle text-danger border border-danger-subtle"),
+    TRIALING("Trialing", "badge bg-info-subtle text-info border border-info-subtle"),
+    PAST_DUE("Past Due", "badge bg-warning-subtle text-warning border border-warning-subtle"),
+    EXPIRED("Expired", "badge bg-dark-subtle text-dark border border-dark-subtle");
 
     private final String displayName;
     private final String badgeClass;

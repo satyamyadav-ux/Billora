@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
-<head th:replace="~{fragments/head :: head('Invoices &amp; Billing')}">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="en">
+<head th:replace="~{fragments/head :: head('Invoices &amp; Billing Management')}">
     <title>Billora - Invoices</title>
 </head>
 <body>
@@ -10,56 +10,344 @@
         <header th:replace="~{fragments/topbar :: topbar}"></header>
 
         <main class="dashboard-content">
+            <!-- Header -->
             <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
                 <div>
                     <h2 class="h3 fw-bold mb-1">Invoices &amp; Billing</h2>
-                    <p class="text-muted small mb-0">Automated recurring billing cycles, dunning retries, and invoice statements.</p>
+                    <p class="text-muted small mb-0">Automate recurring cycle invoicing, generate on-demand statements, and track receivables.</p>
                 </div>
-                <div class="d-flex align-items-center gap-2">
-                    <button class="btn btn-primary-billora btn-sm px-3 py-2 d-flex align-items-center gap-2">
+                <div class="d-flex align-items-center gap-2" sec:authorize="hasAnyRole('ADMIN', 'STAFF')">
+                    <form th:action="@{/dashboard/invoices/generate-due}" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-outline-primary btn-sm px-3 py-2 d-flex align-items-center gap-2" title="Generate invoices for due subscriptions">
+                            <i class="bi bi-arrow-repeat"></i>
+                            <span>Run Billing Engine</span>
+                        </button>
+                    </form>
+                    <button type="button" class="btn btn-primary-billora btn-sm px-3 py-2 d-flex align-items-center gap-2"
+                            onclick="openCreateInvoiceModal()">
                         <i class="bi bi-file-earmark-plus"></i>
-                        <span>Generate Invoice</span>
+                        <span>New Invoice</span>
                     </button>
                 </div>
             </div>
 
+            <!-- Flash Alerts -->
+            <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show d-flex align-items-center gap-2 mb-3" role="alert">
+                <i class="bi bi-check-circle-fill fs-5 text-success"></i>
+                <span th:text="${successMessage}">Success message</span>
+                <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show d-flex align-items-center gap-2 mb-3" role="alert">
+                <i class="bi bi-exclamation-triangle-fill fs-5 text-danger"></i>
+                <span th:text="${errorMessage}">Error message</span>
+                <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+            <!-- Financial Summary KPI Cards -->
             <div class="row g-3 mb-4">
                 <div class="col-md-4">
-                    <div class="p-3 bg-white rounded-3 border">
-                        <span class="text-muted small">Total Paid This Month</span>
-                        <h4 class="fw-bold mb-0 text-success mt-1">$44,870.00</h4>
+                    <div class="p-3 bg-white rounded-3 border shadow-sm">
+                        <span class="text-muted small fw-semibold">Total Collected (Paid)</span>
+                        <h4 class="fw-bold mb-0 text-success mt-1" th:text="${currencySymbol} + ${#numbers.formatDecimal(totalPaidAmount != null ? totalPaidAmount : 0, 1, 'COMMA', 2, 'POINT')}">$0.00</h4>
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="p-3 bg-white rounded-3 border">
-                        <span class="text-muted small">Pending Collection</span>
-                        <h4 class="fw-bold mb-0 text-warning mt-1">$3,420.00</h4>
+                    <div class="p-3 bg-white rounded-3 border shadow-sm">
+                        <span class="text-muted small fw-semibold">Pending Collection (Unpaid)</span>
+                        <h4 class="fw-bold mb-0 text-warning mt-1" th:text="${currencySymbol} + ${#numbers.formatDecimal(pendingCollectionAmount != null ? pendingCollectionAmount : 0, 1, 'COMMA', 2, 'POINT')}">$0.00</h4>
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="p-3 bg-white rounded-3 border">
-                        <span class="text-muted small">Failed Charges (Dunning)</span>
-                        <h4 class="fw-bold mb-0 text-danger mt-1">$0.00</h4>
+                    <div class="p-3 bg-white rounded-3 border shadow-sm">
+                        <span class="text-muted small fw-semibold">Total Invoices Issued</span>
+                        <h4 class="fw-bold mb-0 text-primary mt-1" th:text="${totalCount}">0</h4>
                     </div>
                 </div>
             </div>
 
-            <div class="billora-card p-4 text-center py-5">
-                <div class="stat-icon-wrapper stat-icon-indigo mx-auto mb-3" style="width: 60px; height: 60px; font-size: 1.75rem;">
-                    <i class="bi bi-receipt-cutoff"></i>
+            <!-- Invoices Table Card -->
+            <div class="billora-card shadow-sm border-0">
+                <!-- Status Filter Tabs -->
+                <div class="p-3 border-bottom d-flex flex-wrap gap-2 align-items-center justify-content-between bg-white rounded-top">
+                    <div class="d-flex flex-wrap gap-1">
+                        <a th:href="@{/dashboard/invoices(status='ALL')}"
+                           th:classappend="${currentFilter == 'ALL'} ? 'btn-primary' : 'btn-light border'"
+                           class="btn btn-sm">
+                            All (<span th:text="${totalCount}">0</span>)
+                        </a>
+                        <a th:href="@{/dashboard/invoices(status='CONFIRMED')}"
+                           th:classappend="${currentFilter == 'CONFIRMED'} ? 'btn-primary' : 'btn-light border'"
+                           class="btn btn-sm">
+                            Confirmed (<span th:text="${confirmedCount}">0</span>)
+                        </a>
+                        <a th:href="@{/dashboard/invoices(status='PAID')}"
+                           th:classappend="${currentFilter == 'PAID'} ? 'btn-primary' : 'btn-light border'"
+                           class="btn btn-sm">
+                            Paid (<span th:text="${paidCount}">0</span>)
+                        </a>
+                        <a th:href="@{/dashboard/invoices(status='DRAFT')}"
+                           th:classappend="${currentFilter == 'DRAFT'} ? 'btn-primary' : 'btn-light border'"
+                           class="btn btn-sm">
+                            Draft (<span th:text="${draftCount}">0</span>)
+                        </a>
+                        <a th:href="@{/dashboard/invoices(status='OVERDUE')}"
+                           th:classappend="${currentFilter == 'OVERDUE'} ? 'btn-primary' : 'btn-light border'"
+                           class="btn btn-sm">
+                            Overdue (<span th:text="${overdueCount}">0</span>)
+                        </a>
+                        <a th:href="@{/dashboard/invoices(status='CANCELLED')}"
+                           th:classappend="${currentFilter == 'CANCELLED'} ? 'btn-primary' : 'btn-light border'"
+                           class="btn btn-sm">
+                            Cancelled (<span th:text="${cancelledCount}">0</span>)
+                        </a>
+                    </div>
+                    <span class="text-muted small">PostgreSQL JPA: <code>com.billora.modules.billing</code></span>
                 </div>
-                <h5 class="fw-bold">Billing &amp; Invoicing Module Ready</h5>
-                <p class="text-muted small max-w-md mx-auto mb-4">
-                    The underlying package <code>com.billora.modules.billing</code> is structured and ready for automated lifecycle invoice generation and PDF exports.
-                </p>
-                <div class="d-flex justify-content-center gap-2">
-                    <a th:href="@{/dashboard}" class="btn btn-primary-billora btn-sm">Return to Overview</a>
+
+                <div class="table-responsive">
+                    <table class="table table-billora align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Invoice #</th>
+                                <th>Customer</th>
+                                <th>Subscription</th>
+                                <th>Issue Date</th>
+                                <th>Due Date</th>
+                                <th>Subtotal</th>
+                                <th>Tax / Discount</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                                <th class="text-end" sec:authorize="hasAnyRole('ADMIN', 'STAFF')">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:if="${#lists.isEmpty(invoices)}">
+                                <td colspan="10" class="text-center py-5 text-muted">
+                                    <i class="bi bi-receipt-cutoff fs-2 d-block mb-2 text-secondary"></i>
+                                    <div class="fw-semibold">No invoices found for this filter.</div>
+                                    <div class="small">Click "New Invoice" or "Run Billing Engine" to generate records.</div>
+                                </td>
+                            </tr>
+                            <tr th:each="inv : ${invoices}">
+                                <td>
+                                    <a th:href="@{/dashboard/invoices/{id}(id=${inv.id})}" class="fw-bold text-primary font-monospace text-decoration-none" th:text="${inv.invoiceNumber}">INV-1001</a>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="user-avatar" style="width: 30px; height: 30px; font-size: 0.75rem;" th:text="${inv.customer.avatar}">AC</div>
+                                        <div>
+                                            <div class="fw-semibold text-dark small" th:text="${inv.customer.name}">Customer Name</div>
+                                            <div class="text-muted" style="font-size: 0.7rem;" th:text="${inv.customer.email}">email@example.com</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span th:if="${inv.subscription != null}" class="badge bg-light text-primary border small" th:text="${inv.subscription.subscriptionCode}">SUB-8492</span>
+                                    <span th:if="${inv.subscription == null}" class="badge bg-light text-secondary border small">Direct Invoice</span>
+                                </td>
+                                <td>
+                                    <span class="small text-muted" th:text="${inv.issueDate}">2026-10-31</span>
+                                </td>
+                                <td>
+                                    <span class="small" th:text="${inv.dueDate}">2026-11-30</span>
+                                </td>
+                                <td>
+                                    <span class="small text-dark" th:text="${currencySymbol} + ${#numbers.formatDecimal(inv.subtotal, 1, 'COMMA', 2, 'POINT')}">$99.00</span>
+                                </td>
+                                <td>
+                                    <small class="text-muted d-block" th:if="${inv.taxAmount > 0}" th:text="'+ Tax ' + ${currencySymbol} + ${inv.taxAmount}">+ Tax $9.90</small>
+                                    <small class="text-success d-block" th:if="${inv.discountAmount > 0}" th:text="'- Disc ' + ${currencySymbol} + ${inv.discountAmount}">- Disc $10.00</small>
+                                    <span th:if="${inv.taxAmount == 0 and inv.discountAmount == 0}" class="text-muted small">—</span>
+                                </td>
+                                <td>
+                                    <span class="fw-bold text-dark" th:text="${currencySymbol} + ${#numbers.formatDecimal(inv.totalAmount, 1, 'COMMA', 2, 'POINT')}">$108.90</span>
+                                </td>
+                                <td>
+                                    <span th:class="${inv.status.badgeClass}" th:text="${inv.status.label}">Confirmed</span>
+                                </td>
+                                <td class="text-end" sec:authorize="hasAnyRole('ADMIN', 'STAFF')">
+                                    <div class="d-inline-flex gap-1 flex-wrap justify-content-end">
+                                        <!-- View / Print Invoice -->
+                                        <a th:href="@{/dashboard/invoices/{id}(id=${inv.id})}" class="btn btn-sm btn-light border px-2 py-1" title="View Invoice">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+
+                                        <!-- Confirm (if Draft) -->
+                                        <form th:if="${inv.status.name() == 'DRAFT'}" th:action="@{/dashboard/invoices/{id}/confirm(id=${inv.id})}" method="post" class="d-inline">
+                                            <button type="submit" class="btn btn-sm btn-outline-primary px-2 py-1" title="Confirm Invoice">
+                                                <i class="bi bi-check2"></i> Confirm
+                                            </button>
+                                        </form>
+
+                                        <!-- Mark Paid (if not Paid and not Cancelled) -->
+                                        <form th:if="${inv.status.name() != 'PAID' and inv.status.name() != 'CANCELLED'}" th:action="@{/dashboard/invoices/{id}/pay(id=${inv.id})}" method="post" class="d-inline">
+                                            <button type="submit" class="btn btn-sm btn-outline-success px-2 py-1" title="Mark as Paid">
+                                                <i class="bi bi-cash-stack"></i> Pay
+                                            </button>
+                                        </form>
+
+                                        <!-- Cancel (if not Paid and not Cancelled) -->
+                                        <form th:if="${inv.status.name() != 'PAID' and inv.status.name() != 'CANCELLED'}" th:action="@{/dashboard/invoices/{id}/cancel(id=${inv.id})}" method="post" class="d-inline"
+                                              onsubmit="return confirm('Cancel invoice ' + this.getAttribute('data-num') + '?');"
+                                              th:data-num="${inv.invoiceNumber}">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger px-2 py-1" title="Cancel Invoice">
+                                                <i class="bi bi-x-circle"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </main>
         <footer th:replace="~{fragments/footer :: footer}"></footer>
     </div>
 </div>
+
+<!-- Create / Edit Manual Invoice Modal -->
+<div class="modal fade" id="invoiceModal" tabindex="-1" aria-labelledby="invoiceModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-bottom px-4 py-3 bg-light">
+                <h5 class="modal-title fw-bold" id="invoiceModalLabel">
+                    <i class="bi bi-receipt-cutoff me-1 text-primary"></i> <span id="invModalTitleText">New Manual Invoice</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form th:action="@{/dashboard/invoices}" th:object="${invoiceDto}" method="post" id="invForm">
+                <div class="modal-body px-4 py-3">
+                    <input type="hidden" th:field="*{id}" id="invId"/>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Customer <span class="text-danger">*</span></label>
+                            <select class="form-select" th:field="*{customerId}" id="invCustomerSelect" required>
+                                <option value="" disabled selected>-- Select Customer --</option>
+                                <option th:each="c : ${customers}" th:value="${c.id}" th:text="${c.name} + ' (' + ${c.email} + ')'">Customer</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Associated Subscription (Optional)</label>
+                            <select class="form-select" th:field="*{subscriptionId}" id="invSubSelect">
+                                <option value="">-- Direct Invoice / None --</option>
+                                <option th:each="s : ${subscriptions}" th:value="${s.id}" th:text="${s.subscriptionCode} + ' - ' + ${s.customer.name} + ' (' + ${s.plan.name} + ')'">Subscription</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Issue Date <span class="text-danger">*</span></label>
+                            <input type="date" class="form-control" th:field="*{issueDate}" id="invIssueDate" required/>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Due Date <span class="text-danger">*</span></label>
+                            <input type="date" class="form-control" th:field="*{dueDate}" id="invDueDate" required/>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Line Item Description <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" th:field="*{itemDescription}" id="invItemDesc" placeholder="e.g. Cloud Consultation &amp; Setup Services" required/>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold">Quantity <span class="text-danger">*</span></label>
+                            <input type="number" min="1" class="form-control" th:field="*{quantity}" id="invQty" value="1" required/>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold">Unit Price (<span th:text="${currencySymbol}">$</span>) <span class="text-danger">*</span></label>
+                            <input type="number" step="0.01" min="0" class="form-control" th:field="*{unitPrice}" id="invUnitPrice" value="0.00" required/>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold">Tax Rate (%)</label>
+                            <input type="number" step="0.01" min="0" class="form-control" th:field="*{taxRate}" id="invTaxRate" value="0.00"/>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold">Discount (<span th:text="${currencySymbol}">$</span>)</label>
+                            <input type="number" step="0.01" min="0" class="form-control" th:field="*{discountAmount}" id="invDiscount" value="0.00"/>
+                        </div>
+
+                        <!-- Real-time total preview -->
+                        <div class="col-12">
+                            <div class="p-3 bg-light rounded border d-flex align-items-center justify-content-between">
+                                <span class="text-muted fw-semibold">Total Amount:</span>
+                                <h4 class="fw-bold mb-0 text-primary" id="invTotalPreview">$0.00</h4>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Status</label>
+                            <select class="form-select" th:field="*{status}" id="invStatus">
+                                <option value="CONFIRMED">Confirmed</option>
+                                <option value="DRAFT">Draft</option>
+                                <option value="PAID">Paid</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Notes</label>
+                            <input type="text" class="form-control" th:field="*{notes}" id="invNotes" placeholder="Payment wire instructions, terms, etc."/>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-top px-4 py-3 bg-light">
+                    <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary-billora px-4">
+                        <i class="bi bi-check-lg me-1"></i> Save Invoice
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <div th:replace="~{fragments/scripts :: scripts}"></div>
+<script th:if="${openModal}">
+    document.addEventListener("DOMContentLoaded", function () {
+        var modalEl = document.getElementById('invoiceModal');
+        if (modalEl) {
+            new bootstrap.Modal(modalEl).show();
+        }
+    });
+</script>
+<script>
+    function calculateInvoiceTotal() {
+        var qty = parseInt(document.getElementById('invQty').value) || 1;
+        var unitPrice = parseFloat(document.getElementById('invUnitPrice').value) || 0;
+        var subtotal = qty * unitPrice;
+        var discount = parseFloat(document.getElementById('invDiscount').value) || 0;
+        var taxable = Math.max(0, subtotal - discount);
+        var taxRate = parseFloat(document.getElementById('invTaxRate').value) || 0;
+        var tax = (taxable * taxRate) / 100;
+        var total = taxable + tax;
+        document.getElementById('invTotalPreview').textContent = '$' + total.toFixed(2);
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        ['invQty', 'invUnitPrice', 'invTaxRate', 'invDiscount'].forEach(function (id) {
+            var el = document.getElementById(id);
+            if (el) el.addEventListener('input', calculateInvoiceTotal);
+        });
+    });
+
+    function openCreateInvoiceModal() {
+        document.getElementById('invModalTitleText').textContent = 'New Manual Invoice';
+        document.getElementById('invId').value = '';
+        document.getElementById('invCustomerSelect').value = '';
+        document.getElementById('invSubSelect').value = '';
+        var today = new Date().toISOString().split('T')[0];
+        document.getElementById('invIssueDate').value = today;
+        var due = new Date();
+        due.setDate(due.getDate() + 30);
+        document.getElementById('invDueDate').value = due.toISOString().split('T')[0];
+        document.getElementById('invItemDesc').value = 'Software Subscription & Professional Services';
+        document.getElementById('invQty').value = '1';
+        document.getElementById('invUnitPrice').value = '99.00';
+        document.getElementById('invTaxRate').value = '0.00';
+        document.getElementById('invDiscount').value = '0.00';
+        document.getElementById('invStatus').value = 'CONFIRMED';
+        document.getElementById('invNotes').value = '';
+        calculateInvoiceTotal();
+        new bootstrap.Modal(document.getElementById('invoiceModal')).show();
+    }
+</script>
 </body>
 </html>

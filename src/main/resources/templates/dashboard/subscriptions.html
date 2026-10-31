@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
-<head th:replace="~{fragments/head :: head('Subscription Plans')}">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="en">
+<head th:replace="~{fragments/head :: head('Subscription Management')}">
     <title>Billora - Subscriptions</title>
 </head>
 <body>
@@ -10,61 +10,234 @@
         <header th:replace="~{fragments/topbar :: topbar}"></header>
 
         <main class="dashboard-content">
+            <!-- Page Header -->
             <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
                 <div>
                     <h2 class="h3 fw-bold mb-1">Subscriptions Management</h2>
-                    <p class="text-muted small mb-0">Browse and manage active subscriber accounts, pricing tiers, and renewal schedules.</p>
+                    <p class="text-muted small mb-0">Manage customer subscriptions across the lifecycle: Draft → Quotation → Confirmed → Active → Closed.</p>
                 </div>
-                <div class="d-flex align-items-center gap-2">
-                    <button class="btn btn-primary-billora btn-sm px-3 py-2 d-flex align-items-center gap-2">
+                <div class="d-flex align-items-center gap-2" sec:authorize="hasAnyRole('ADMIN', 'STAFF')">
+                    <button type="button" class="btn btn-primary-billora btn-sm px-3 py-2 d-flex align-items-center gap-2"
+                            onclick="openCreateSubscriptionModal()">
                         <i class="bi bi-plus-lg"></i>
-                        <span>Create Subscription</span>
+                        <span>New Subscription</span>
                     </button>
                 </div>
             </div>
 
+            <!-- Flash Alerts -->
+            <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show d-flex align-items-center gap-2 mb-3" role="alert">
+                <i class="bi bi-check-circle-fill fs-5 text-success"></i>
+                <span th:text="${successMessage}">Success message</span>
+                <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show d-flex align-items-center gap-2 mb-3" role="alert">
+                <i class="bi bi-exclamation-triangle-fill fs-5 text-danger"></i>
+                <span th:text="${errorMessage}">Error message</span>
+                <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
             <!-- Subscriptions Table Card -->
-            <div class="billora-card">
-                <div class="p-3 border-bottom d-flex flex-wrap gap-2 align-items-center justify-content-between">
-                    <div class="d-flex gap-2">
-                        <button class="btn btn-sm btn-primary">All (1,482)</button>
-                        <button class="btn btn-sm btn-light border">Active (1,390)</button>
-                        <button class="btn btn-sm btn-light border">Trialing (64)</button>
-                        <button class="btn btn-sm btn-light border">Past Due (28)</button>
+            <div class="billora-card shadow-sm border-0">
+                <!-- Lifecycle Tabs -->
+                <div class="p-3 border-bottom d-flex flex-wrap gap-2 align-items-center justify-content-between bg-white rounded-top">
+                    <div class="d-flex flex-wrap gap-1">
+                        <a th:href="@{/dashboard/subscriptions(status='ALL')}"
+                           th:classappend="${currentFilter == 'ALL'} ? 'btn-primary' : 'btn-light border'"
+                           class="btn btn-sm">
+                            All (<span th:text="${totalCount}">0</span>)
+                        </a>
+                        <a th:href="@{/dashboard/subscriptions(status='DRAFT')}"
+                           th:classappend="${currentFilter == 'DRAFT'} ? 'btn-primary' : 'btn-light border'"
+                           class="btn btn-sm">
+                            Draft (<span th:text="${draftCount}">0</span>)
+                        </a>
+                        <a th:href="@{/dashboard/subscriptions(status='QUOTATION')}"
+                           th:classappend="${currentFilter == 'QUOTATION'} ? 'btn-primary' : 'btn-light border'"
+                           class="btn btn-sm">
+                            Quotation (<span th:text="${quotationCount}">0</span>)
+                        </a>
+                        <a th:href="@{/dashboard/subscriptions(status='CONFIRMED')}"
+                           th:classappend="${currentFilter == 'CONFIRMED'} ? 'btn-primary' : 'btn-light border'"
+                           class="btn btn-sm">
+                            Confirmed (<span th:text="${confirmedCount}">0</span>)
+                        </a>
+                        <a th:href="@{/dashboard/subscriptions(status='ACTIVE')}"
+                           th:classappend="${currentFilter == 'ACTIVE'} ? 'btn-primary' : 'btn-light border'"
+                           class="btn btn-sm">
+                            Active (<span th:text="${activeCount}">0</span>)
+                        </a>
+                        <a th:href="@{/dashboard/subscriptions(status='PAUSED')}"
+                           th:classappend="${currentFilter == 'PAUSED'} ? 'btn-primary' : 'btn-light border'"
+                           class="btn btn-sm">
+                            Paused (<span th:text="${pausedCount}">0</span>)
+                        </a>
+                        <a th:href="@{/dashboard/subscriptions(status='CLOSED')}"
+                           th:classappend="${currentFilter == 'CLOSED'} ? 'btn-primary' : 'btn-light border'"
+                           class="btn btn-sm">
+                            Closed (<span th:text="${closedCount}">0</span>)
+                        </a>
+                        <a th:href="@{/dashboard/subscriptions(status='CANCELLED')}"
+                           th:classappend="${currentFilter == 'CANCELLED'} ? 'btn-primary' : 'btn-light border'"
+                           class="btn btn-sm">
+                            Cancelled (<span th:text="${cancelledCount}">0</span>)
+                        </a>
                     </div>
-                    <span class="text-muted small">PostgreSQL module: <code>com.billora.modules.subscription</code></span>
+                    <span class="text-muted small">PostgreSQL JPA: <code>com.billora.modules.subscription</code></span>
                 </div>
 
                 <div class="table-responsive">
-                    <table class="table table-billora align-middle">
-                        <thead>
+                    <table class="table table-billora align-middle mb-0">
+                        <thead class="table-light">
                             <tr>
-                                <th>ID</th>
+                                <th>Code</th>
                                 <th>Customer</th>
-                                <th>Plan</th>
-                                <th>Billing Cycle</th>
-                                <th>Recurring Amount</th>
+                                <th>Product &amp; Plan</th>
+                                <th>Qty &amp; Total</th>
+                                <th>Cycle</th>
+                                <th>Duration</th>
+                                <th>Payment Terms</th>
                                 <th>Status</th>
-                                <th>Next Billing</th>
-                                <th class="text-end">Actions</th>
+                                <th class="text-end" sec:authorize="hasAnyRole('ADMIN', 'STAFF')">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
+                            <tr th:if="${#lists.isEmpty(subscriptions)}">
+                                <td colspan="9" class="text-center py-5 text-muted">
+                                    <i class="bi bi-inbox fs-2 d-block mb-2 text-secondary"></i>
+                                    <div class="fw-semibold">No subscriptions found for the selected filter.</div>
+                                    <div class="small">Click "New Subscription" above to create one.</div>
+                                </td>
+                            </tr>
                             <tr th:each="sub : ${subscriptions}">
-                                <td class="fw-bold text-primary font-monospace small" th:text="${sub.id}">SUB-8492</td>
+                                <td>
+                                    <span class="fw-bold text-primary font-monospace small" th:text="${sub.subscriptionCode}">SUB-8492</span>
+                                </td>
                                 <td>
                                     <div class="d-flex align-items-center gap-2">
-                                        <div class="user-avatar" style="width: 30px; height: 30px; font-size: 0.75rem;" th:text="${sub.customerAvatar}">AT</div>
-                                        <span class="fw-semibold text-dark" th:text="${sub.customerName}">Acme</span>
+                                        <div class="user-avatar" style="width: 32px; height: 32px; font-size: 0.75rem;"
+                                             th:text="${sub.customer.avatar}">AT</div>
+                                        <div>
+                                            <div class="fw-semibold text-dark" th:text="${sub.customer.name}">Customer Name</div>
+                                            <div class="text-muted small" style="font-size: 0.75rem;" th:text="${sub.customer.email}">email@example.com</div>
+                                        </div>
                                     </div>
                                 </td>
-                                <td><span class="badge bg-light text-dark border" th:text="${sub.planName}">Enterprise</span></td>
-                                <td th:text="${sub.billingCycle.label}">Monthly</td>
-                                <td class="fw-bold text-dark" th:text="${currencySymbol} + ${#numbers.formatDecimal(sub.amount, 1, 'COMMA', 2, 'POINT')}">$1,249.00</td>
-                                <td><span th:class="${sub.status.badgeClass}" th:text="${sub.status.displayName}">Active</span></td>
-                                <td class="text-muted small" th:text="${sub.nextBillingDate}">2026-11-01</td>
-                                <td class="text-end">
-                                    <button class="btn btn-sm btn-light border rounded px-2 py-1"><i class="bi bi-pencil"></i></button>
+                                <td>
+                                    <div class="fw-semibold text-dark" th:text="${sub.plan.name}">Enterprise Tier</div>
+                                    <span th:if="${sub.product != null}" class="badge bg-light text-primary border small" th:text="${sub.product.name}">Product</span>
+                                    <span th:if="${sub.product == null}" class="badge bg-light text-secondary border small">General Suite</span>
+                                </td>
+                                <td>
+                                    <div class="fw-bold text-dark" th:text="${currencySymbol} + ${#numbers.formatDecimal(sub.amount, 1, 'COMMA', 2, 'POINT')}">$1,249.00</div>
+                                    <small class="text-muted" th:text="${sub.quantity} + ' × ' + ${currencySymbol} + ${#numbers.formatDecimal(sub.unitPrice, 1, 'COMMA', 2, 'POINT')}">1 × $1,249.00</small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-light text-dark border" th:text="${sub.billingCycle.label}">Monthly</span>
+                                </td>
+                                <td>
+                                    <div class="small text-dark">
+                                        <span th:text="${sub.startDate}">2026-01-01</span>
+                                        <span th:if="${sub.endDate != null}" th:text="' → ' + ${sub.endDate}"> → 2026-12-31</span>
+                                        <span th:if="${sub.endDate == null}" class="text-muted"> (Ongoing)</span>
+                                    </div>
+                                    <small th:if="${sub.nextBillingDate != null}" class="text-muted d-block" style="font-size: 0.7rem;"
+                                           th:text="'Next: ' + ${sub.nextBillingDate}">Next: 2026-11-01</small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-light text-dark border small" th:text="${sub.paymentTerms != null ? sub.paymentTerms : 'Due on Receipt'}">Due on Receipt</span>
+                                </td>
+                                <td>
+                                    <span th:class="${sub.status.badgeClass}" th:text="${sub.status.displayName}">Active</span>
+                                </td>
+                                <td class="text-end" sec:authorize="hasAnyRole('ADMIN', 'STAFF')">
+                                    <div class="d-inline-flex gap-1 flex-wrap justify-content-end">
+                                        <!-- Edit button using data attributes -->
+                                        <button type="button" class="btn btn-sm btn-light border px-2 py-1"
+                                                th:data-id="${sub.id}"
+                                                th:data-customer-id="${sub.customer.id}"
+                                                th:data-product-id="${sub.product != null ? sub.product.id : ''}"
+                                                th:data-plan-id="${sub.plan.id}"
+                                                th:data-quantity="${sub.quantity}"
+                                                th:data-unit-price="${sub.unitPrice}"
+                                                th:data-amount="${sub.amount}"
+                                                th:data-start-date="${sub.startDate}"
+                                                th:data-end-date="${sub.endDate}"
+                                                th:data-payment-terms="${sub.paymentTerms}"
+                                                th:data-billing-cycle="${sub.billingCycle.name()}"
+                                                th:data-status="${sub.status.name()}"
+                                                th:data-notes="${sub.notes}"
+                                                onclick="openEditSubscriptionModalFromBtn(this)"
+                                                title="Edit Subscription">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+
+                                        <!-- Lifecycle: Send Quotation (if DRAFT) -->
+                                        <form th:if="${sub.status.name() == 'DRAFT'}" th:action="@{/dashboard/subscriptions/{id}/lifecycle(id=${sub.id})}" method="post" class="d-inline">
+                                            <input type="hidden" name="status" value="QUOTATION"/>
+                                            <button type="submit" class="btn btn-sm btn-outline-primary px-2 py-1" title="Send Quotation">
+                                                <i class="bi bi-send me-1"></i> Quote
+                                            </button>
+                                        </form>
+
+                                        <!-- Lifecycle: Confirm (if QUOTATION or DRAFT) -->
+                                        <form th:if="${sub.status.name() == 'QUOTATION' or sub.status.name() == 'DRAFT'}" th:action="@{/dashboard/subscriptions/{id}/lifecycle(id=${sub.id})}" method="post" class="d-inline">
+                                            <input type="hidden" name="status" value="CONFIRMED"/>
+                                            <button type="submit" class="btn btn-sm btn-outline-info px-2 py-1" title="Confirm Quotation">
+                                                <i class="bi bi-check2-circle me-1"></i> Confirm
+                                            </button>
+                                        </form>
+
+                                        <!-- Lifecycle: Activate (if CONFIRMED, DRAFT, QUOTATION) -->
+                                        <form th:if="${sub.status.name() == 'CONFIRMED' or sub.status.name() == 'DRAFT' or sub.status.name() == 'QUOTATION'}" th:action="@{/dashboard/subscriptions/{id}/lifecycle(id=${sub.id})}" method="post" class="d-inline">
+                                            <input type="hidden" name="status" value="ACTIVE"/>
+                                            <button type="submit" class="btn btn-sm btn-outline-success px-2 py-1" title="Activate Subscription">
+                                                <i class="bi bi-play-circle me-1"></i> Activate
+                                            </button>
+                                        </form>
+
+                                        <!-- Action: Pause (if ACTIVE) -->
+                                        <form th:if="${sub.status.name() == 'ACTIVE'}" th:action="@{/dashboard/subscriptions/{id}/pause(id=${sub.id})}" method="post" class="d-inline">
+                                            <button type="submit" class="btn btn-sm btn-outline-warning px-2 py-1" title="Pause Subscription">
+                                                <i class="bi bi-pause-circle"></i> Pause
+                                            </button>
+                                        </form>
+
+                                        <!-- Action: Resume (if PAUSED) -->
+                                        <form th:if="${sub.status.name() == 'PAUSED'}" th:action="@{/dashboard/subscriptions/{id}/resume(id=${sub.id})}" method="post" class="d-inline">
+                                            <button type="submit" class="btn btn-sm btn-outline-success px-2 py-1" title="Resume Subscription">
+                                                <i class="bi bi-play-circle"></i> Resume
+                                            </button>
+                                        </form>
+
+                                        <!-- Action: Renew (if ACTIVE or CLOSED) -->
+                                        <form th:if="${sub.status.name() == 'ACTIVE' or sub.status.name() == 'CLOSED'}" th:action="@{/dashboard/subscriptions/{id}/renew(id=${sub.id})}" method="post" class="d-inline">
+                                            <button type="submit" class="btn btn-sm btn-outline-primary px-2 py-1" title="Renew Subscription">
+                                                <i class="bi bi-arrow-clockwise"></i> Renew
+                                            </button>
+                                        </form>
+
+                                        <!-- Action: Early Close (if ACTIVE or PAUSED) -->
+                                        <form th:if="${sub.status.name() == 'ACTIVE' or sub.status.name() == 'PAUSED'}" th:action="@{/dashboard/subscriptions/{id}/close(id=${sub.id})}" method="post" class="d-inline"
+                                              onsubmit="return confirm('Early close subscription ' + this.getAttribute('data-code') + '?');"
+                                              th:data-code="${sub.subscriptionCode}">
+                                            <button type="submit" class="btn btn-sm btn-outline-secondary px-2 py-1" title="Early Close">
+                                                <i class="bi bi-stop-circle"></i> Close
+                                            </button>
+                                        </form>
+
+                                        <!-- Action: Cancel (if not CANCELLED and not CLOSED) -->
+                                        <form th:if="${sub.status.name() != 'CANCELLED' and sub.status.name() != 'CLOSED'}"
+                                              th:action="@{/dashboard/subscriptions/{id}/cancel(id=${sub.id})}"
+                                              method="post"
+                                              onsubmit="return confirm('Cancel subscription ' + this.getAttribute('data-code') + '?');"
+                                              th:data-code="${sub.subscriptionCode}"
+                                              class="d-inline">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger px-2 py-1" title="Cancel Subscription">
+                                                <i class="bi bi-x-circle"></i>
+                                            </button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                         </tbody>
@@ -75,6 +248,260 @@
         <footer th:replace="~{fragments/footer :: footer}"></footer>
     </div>
 </div>
+
+<!-- Create / Edit Subscription Modal -->
+<div class="modal fade" id="subscriptionModal" tabindex="-1" aria-labelledby="subscriptionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-bottom px-4 py-3 bg-light">
+                <h5 class="modal-title fw-bold" id="subscriptionModalLabel">
+                    <i class="bi bi-receipt me-1 text-primary"></i> <span id="subModalTitleText">New Subscription</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form th:action="@{/dashboard/subscriptions}" th:object="${subscriptionDto}" method="post" id="subForm">
+                <div class="modal-body px-4 py-3">
+                    <input type="hidden" th:field="*{id}" id="subId"/>
+                    <div class="row g-3">
+                        <!-- Customer Selection -->
+                        <div class="col-md-12">
+                            <label class="form-label fw-semibold">Customer <span class="text-danger">*</span></label>
+                            <select class="form-select" th:field="*{customerId}" id="customerSelect">
+                                <option value="">-- Select Customer or Add New Below --</option>
+                                <option th:each="c : ${customers}" th:value="${c.id}"
+                                        th:text="${c.name} + ' (' + ${c.email} + ')' + (${c.company != null} ? ' - ' + ${c.company} : '')">
+                                    Customer Option
+                                </option>
+                            </select>
+                        </div>
+
+                        <!-- Quick Add New Customer (Optional) -->
+                        <div class="col-12" id="quickCustomerSection">
+                            <div class="p-3 bg-light rounded border">
+                                <div class="fw-semibold small text-primary mb-2">
+                                    <i class="bi bi-person-plus me-1"></i> Quick Add New Customer (if not selected above)
+                                </div>
+                                <div class="row g-2">
+                                    <div class="col-md-4">
+                                        <input type="text" class="form-control form-control-sm" th:field="*{newCustomerName}" id="newCustName" placeholder="Full Name / Company"/>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <input type="email" class="form-control form-control-sm" th:field="*{newCustomerEmail}" id="newCustEmail" placeholder="Email Address"/>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <input type="text" class="form-control form-control-sm" th:field="*{newCustomerCompany}" id="newCustCompany" placeholder="Company Name"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Product Selection -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Product</label>
+                            <select class="form-select" th:field="*{productId}" id="productSelect">
+                                <option value="">-- General / Derived from Plan --</option>
+                                <option th:each="prod : ${products}" th:value="${prod.id}"
+                                        th:data-price="${prod.salesPrice}"
+                                        th:text="${prod.name} + ' (' + ${currencySymbol} + ${prod.salesPrice} + ')'">
+                                    Product Option
+                                </option>
+                            </select>
+                        </div>
+
+                        <!-- Pricing Plan -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Subscription Plan <span class="text-danger">*</span></label>
+                            <select class="form-select" th:field="*{planId}" required id="planSelect">
+                                <option value="" disabled selected>-- Select a Plan --</option>
+                                <option th:each="p : ${plans}"
+                                        th:value="${p.id}"
+                                        th:data-price="${p.price}"
+                                        th:data-cycle="${p.billingCycle.name()}"
+                                        th:data-product-id="${p.product != null ? p.product.id : ''}"
+                                        th:text="${p.name} + ' (' + ${currencySymbol} + ${p.price} + ' / ' + ${p.billingCycle.label} + ')'">
+                                    Plan Option
+                                </option>
+                            </select>
+                        </div>
+
+                        <!-- Quantity -->
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Quantity <span class="text-danger">*</span></label>
+                            <input type="number" min="1" class="form-control" th:field="*{quantity}" id="qtyInput" value="1" required/>
+                        </div>
+
+                        <!-- Unit Price -->
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Unit Price (<span th:text="${currencySymbol}">$</span>) <span class="text-danger">*</span></label>
+                            <input type="number" step="0.01" min="0" class="form-control" th:field="*{unitPrice}" id="unitPriceInput" required/>
+                        </div>
+
+                        <!-- Calculated Total -->
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Calculated Total (<span th:text="${currencySymbol}">$</span>)</label>
+                            <input type="text" class="form-control fw-bold text-primary bg-light" id="totalAmountDisplay" readonly value="0.00"/>
+                        </div>
+
+                        <!-- Start Date -->
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Start Date <span class="text-danger">*</span></label>
+                            <input type="date" class="form-control" th:field="*{startDate}" id="startDateInput" required/>
+                        </div>
+
+                        <!-- End Date -->
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">End Date (Optional)</label>
+                            <input type="date" class="form-control" th:field="*{endDate}" id="endDateInput"/>
+                        </div>
+
+                        <!-- Payment Terms -->
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Payment Terms</label>
+                            <select class="form-select" th:field="*{paymentTerms}" id="paymentTermsSelect">
+                                <option value="Due on Receipt">Due on Receipt</option>
+                                <option value="Net 15">Net 15 Days</option>
+                                <option value="Net 30">Net 30 Days</option>
+                                <option value="Net 60">Net 60 Days</option>
+                                <option value="Immediate">Immediate / Card on File</option>
+                            </select>
+                        </div>
+
+                        <!-- Billing Frequency -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Billing Frequency</label>
+                            <select class="form-select" th:field="*{billingCycle}" id="billingCycleSelect">
+                                <option th:each="bc : ${billingCycles}" th:value="${bc.name()}" th:text="${bc.label}">Monthly</option>
+                            </select>
+                        </div>
+
+                        <!-- Lifecycle Status -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Lifecycle Status</label>
+                            <select class="form-select" th:field="*{status}" id="statusSelect">
+                                <option th:each="st : ${lifecycleStatuses}" th:value="${st.name()}" th:text="${st.displayName}">Draft</option>
+                            </select>
+                        </div>
+
+                        <!-- Internal Notes -->
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Internal Notes</label>
+                            <textarea class="form-control" th:field="*{notes}" id="subNotes" rows="2" placeholder="Custom agreements, contract notes, or discount approval..."></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-top px-4 py-3 bg-light">
+                    <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary-billora px-4">
+                        <i class="bi bi-check-lg me-1"></i> Save Subscription
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <div th:replace="~{fragments/scripts :: scripts}"></div>
+
+<script th:if="${openModal}">
+    document.addEventListener("DOMContentLoaded", function () {
+        var modalEl = document.getElementById('subscriptionModal');
+        if (modalEl) {
+            new bootstrap.Modal(modalEl).show();
+        }
+    });
+</script>
+
+<script>
+    function calculateAmount() {
+        var qty = parseInt(document.getElementById('qtyInput').value) || 1;
+        var unitPrice = parseFloat(document.getElementById('unitPriceInput').value) || 0;
+        var total = (qty * unitPrice).toFixed(2);
+        document.getElementById('totalAmountDisplay').value = total;
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        var qtyInput = document.getElementById('qtyInput');
+        var unitPriceInput = document.getElementById('unitPriceInput');
+        var planSelect = document.getElementById('planSelect');
+        var productSelect = document.getElementById('productSelect');
+        var cycleSelect = document.getElementById('billingCycleSelect');
+
+        if (qtyInput) qtyInput.addEventListener('input', calculateAmount);
+        if (unitPriceInput) unitPriceInput.addEventListener('input', calculateAmount);
+
+        if (planSelect) {
+            planSelect.addEventListener('change', function () {
+                var opt = planSelect.options[planSelect.selectedIndex];
+                var price = opt.getAttribute('data-price');
+                var cycle = opt.getAttribute('data-cycle');
+                var prodId = opt.getAttribute('data-product-id');
+
+                if (price) {
+                    unitPriceInput.value = price;
+                    calculateAmount();
+                }
+                if (cycle && cycleSelect) {
+                    cycleSelect.value = cycle;
+                }
+                if (prodId && productSelect && !productSelect.value) {
+                    productSelect.value = prodId;
+                }
+            });
+        }
+
+        if (productSelect) {
+            productSelect.addEventListener('change', function () {
+                var opt = productSelect.options[productSelect.selectedIndex];
+                var price = opt.getAttribute('data-price');
+                if (price && (!unitPriceInput.value || unitPriceInput.value === '0.00')) {
+                    unitPriceInput.value = price;
+                    calculateAmount();
+                }
+            });
+        }
+    });
+
+    function openCreateSubscriptionModal() {
+        document.getElementById('subModalTitleText').textContent = 'New Subscription';
+        document.getElementById('subId').value = '';
+        document.getElementById('customerSelect').value = '';
+        document.getElementById('newCustName').value = '';
+        document.getElementById('newCustEmail').value = '';
+        document.getElementById('newCustCompany').value = '';
+        document.getElementById('productSelect').value = '';
+        document.getElementById('planSelect').value = '';
+        document.getElementById('qtyInput').value = '1';
+        document.getElementById('unitPriceInput').value = '0.00';
+        document.getElementById('totalAmountDisplay').value = '0.00';
+        document.getElementById('startDateInput').value = new Date().toISOString().split('T')[0];
+        document.getElementById('endDateInput').value = '';
+        document.getElementById('paymentTermsSelect').value = 'Due on Receipt';
+        document.getElementById('billingCycleSelect').value = 'MONTHLY';
+        document.getElementById('statusSelect').value = 'DRAFT';
+        document.getElementById('subNotes').value = '';
+        document.getElementById('quickCustomerSection').classList.remove('d-none');
+        new bootstrap.Modal(document.getElementById('subscriptionModal')).show();
+    }
+
+    function openEditSubscriptionModalFromBtn(btn) {
+        document.getElementById('subModalTitleText').textContent = 'Edit Subscription';
+        document.getElementById('subId').value = btn.getAttribute('data-id');
+        document.getElementById('customerSelect').value = btn.getAttribute('data-customer-id') || '';
+        document.getElementById('productSelect').value = btn.getAttribute('data-product-id') || '';
+        document.getElementById('planSelect').value = btn.getAttribute('data-plan-id') || '';
+        document.getElementById('qtyInput').value = btn.getAttribute('data-quantity') || '1';
+        document.getElementById('unitPriceInput').value = btn.getAttribute('data-unit-price') || '0.00';
+        document.getElementById('startDateInput').value = btn.getAttribute('data-start-date') || '';
+        document.getElementById('endDateInput').value = btn.getAttribute('data-end-date') || '';
+        document.getElementById('paymentTermsSelect').value = btn.getAttribute('data-payment-terms') || 'Due on Receipt';
+        document.getElementById('billingCycleSelect').value = btn.getAttribute('data-billing-cycle') || 'MONTHLY';
+        document.getElementById('statusSelect').value = btn.getAttribute('data-status') || 'DRAFT';
+        document.getElementById('subNotes').value = btn.getAttribute('data-notes') || '';
+        document.getElementById('quickCustomerSection').classList.add('d-none');
+
+        calculateAmount();
+        new bootstrap.Modal(document.getElementById('subscriptionModal')).show();
+    }
+</script>
 </body>
 </html>

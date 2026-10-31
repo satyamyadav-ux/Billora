@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="en">
+<head th:replace="~{fragments/head :: head('Payment Transactions')}">
+    <title>Billora - Payments</title>
+</head>
+<body>
+<div class="dashboard-wrapper">
+    <aside th:replace="~{fragments/sidebar :: sidebar(${activePage})}"></aside>
+    <div class="dashboard-main">
+        <header th:replace="~{fragments/topbar :: topbar}"></header>
+
+        <main class="dashboard-content">
+            <!-- Header -->
+            <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+                <div>
+                    <h2 class="h3 fw-bold mb-1">Payment Transactions</h2>
+                    <p class="text-muted small mb-0">Record and track payment collections, gateway settlements, and refunds.</p>
+                </div>
+                <div class="d-flex align-items-center gap-2" sec:authorize="hasAnyRole('ADMIN', 'STAFF')">
+                    <button type="button" class="btn btn-primary-billora btn-sm px-3 py-2 d-flex align-items-center gap-2"
+                            onclick="openRecordPaymentModal()">
+                        <i class="bi bi-credit-card"></i>
+                        <span>Record Payment</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Flash Alerts -->
+            <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show d-flex align-items-center gap-2 mb-3" role="alert">
+                <i class="bi bi-check-circle-fill fs-5 text-success"></i>
+                <span th:text="${successMessage}">Success message</span>
+                <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show d-flex align-items-center gap-2 mb-3" role="alert">
+                <i class="bi bi-exclamation-triangle-fill fs-5 text-danger"></i>
+                <span th:text="${errorMessage}">Error message</span>
+                <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+            <!-- Summary KPI Cards -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <div class="p-3 bg-white rounded-3 border shadow-sm">
+                        <span class="text-muted small fw-semibold">Total Revenue Collected</span>
+                        <h4 class="fw-bold mb-0 text-success mt-1" th:text="${currencySymbol} + ${#numbers.formatDecimal(totalSuccessfulAmount != null ? totalSuccessfulAmount : 0, 1, 'COMMA', 2, 'POINT')}">$0.00</h4>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-3 bg-white rounded-3 border shadow-sm">
+                        <span class="text-muted small fw-semibold">Successful Transactions</span>
+                        <h4 class="fw-bold mb-0 text-primary mt-1" th:text="${successCount}">0</h4>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-3 bg-white rounded-3 border shadow-sm">
+                        <span class="text-muted small fw-semibold">Pending Settlements</span>
+                        <h4 class="fw-bold mb-0 text-warning mt-1" th:text="${pendingCount}">0</h4>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payments Table Card -->
+            <div class="billora-card shadow-sm border-0">
+                <!-- Filter Tabs -->
+                <div class="p-3 border-bottom d-flex flex-wrap gap-2 align-items-center justify-content-between bg-white rounded-top">
+                    <div class="d-flex flex-wrap gap-1">
+                        <a th:href="@{/dashboard/payments(status='ALL')}"
+                           th:classappend="${currentFilter == 'ALL'} ? 'btn-primary' : 'btn-light border'"
+                           class="btn btn-sm">
+                            All (<span th:text="${totalCount}">0</span>)
+                        </a>
+                        <a th:href="@{/dashboard/payments(status='SUCCESS')}"
+                           th:classappend="${currentFilter == 'SUCCESS'} ? 'btn-primary' : 'btn-light border'"
+                           class="btn btn-sm">
+                            Successful (<span th:text="${successCount}">0</span>)
+                        </a>
+                        <a th:href="@{/dashboard/payments(status='PENDING')}"
+                           th:classappend="${currentFilter == 'PENDING'} ? 'btn-primary' : 'btn-light border'"
+                           class="btn btn-sm">
+                            Pending (<span th:text="${pendingCount}">0</span>)
+                        </a>
+                        <a th:href="@{/dashboard/payments(status='REFUNDED')}"
+                           th:classappend="${currentFilter == 'REFUNDED'} ? 'btn-primary' : 'btn-light border'"
+                           class="btn btn-sm">
+                            Refunded (<span th:text="${refundedCount}">0</span>)
+                        </a>
+                    </div>
+                    <span class="text-muted small">PostgreSQL JPA: <code>com.billora.modules.payment</code></span>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-billora align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Transaction ID</th>
+                                <th>Customer</th>
+                                <th>Invoice</th>
+                                <th>Method</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Date &amp; Time</th>
+                                <th class="text-end" sec:authorize="hasRole('ADMIN')">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:if="${#lists.isEmpty(payments)}">
+                                <td colspan="8" class="text-center py-5 text-muted">
+                                    <i class="bi bi-credit-card fs-2 d-block mb-2 text-secondary"></i>
+                                    <div class="fw-semibold">No payments recorded yet.</div>
+                                    <div class="small">Click "Record Payment" above to log a transaction.</div>
+                                </td>
+                            </tr>
+                            <tr th:each="p : ${payments}">
+                                <td>
+                                    <span class="fw-bold font-monospace text-primary small" th:text="${p.transactionId}">TX-938210</span>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="user-avatar" style="width: 30px; height: 30px; font-size: 0.75rem;" th:text="${p.customer.avatar}">AC</div>
+                                        <div>
+                                            <div class="fw-semibold text-dark small" th:text="${p.customer.name}">Customer Name</div>
+                                            <div class="text-muted" style="font-size: 0.7rem;" th:text="${p.customer.email}">email@example.com</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span th:if="${p.invoice != null}" class="badge bg-light text-primary border font-monospace small" th:text="${p.invoice.invoiceNumber}">INV-1001</span>
+                                    <span th:if="${p.invoice == null}" class="text-muted small">Direct Payment</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-light text-dark border small" th:text="${p.paymentMethod.label}">Credit Card</span>
+                                </td>
+                                <td>
+                                    <span class="fw-bold text-dark" th:text="${currencySymbol} + ${#numbers.formatDecimal(p.amount, 1, 'COMMA', 2, 'POINT')}">$99.00</span>
+                                </td>
+                                <td>
+                                    <span th:class="${p.status.badgeClass}" th:text="${p.status.label}">Successful</span>
+                                </td>
+                                <td>
+                                    <span class="small text-muted" th:text="${#temporals.format(p.paymentDate, 'yyyy-MM-dd HH:mm')}">2026-10-31 15:30</span>
+                                </td>
+                                <td class="text-end" sec:authorize="hasRole('ADMIN')">
+                                    <!-- Refund button (only if SUCCESS) -->
+                                    <form th:if="${p.status.name() == 'SUCCESS'}" th:action="@{/dashboard/payments/{id}/refund(id=${p.id})}" method="post" class="d-inline"
+                                          onsubmit="return confirm('Refund transaction ' + this.getAttribute('data-tx') + '?');"
+                                          th:data-tx="${p.transactionId}">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger px-2 py-1" title="Refund Payment">
+                                            <i class="bi bi-arrow-counterclockwise"></i> Refund
+                                        </button>
+                                    </form>
+                                    <span th:if="${p.status.name() != 'SUCCESS'}" class="text-muted small">—</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+        <footer th:replace="~{fragments/footer :: footer}"></footer>
+    </div>
+</div>
+
+<!-- Record Payment Modal -->
+<div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-bottom px-4 py-3 bg-light">
+                <h5 class="modal-title fw-bold" id="paymentModalLabel">
+                    <i class="bi bi-credit-card me-1 text-primary"></i> Record Customer Payment
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form th:action="@{/dashboard/payments}" th:object="${paymentDto}" method="post">
+                <div class="modal-body px-4 py-3">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Customer <span class="text-danger">*</span></label>
+                            <select class="form-select" th:field="*{customerId}" id="payCustomer" required>
+                                <option value="" disabled selected>-- Select Customer --</option>
+                                <option th:each="c : ${customers}" th:value="${c.id}" th:text="${c.name} + ' (' + ${c.email} + ')'">Customer</option>
+                            </select>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Linked Invoice (Optional)</label>
+                            <select class="form-select" th:field="*{invoiceId}" id="payInvoice">
+                                <option value="">-- No specific invoice / Direct credit --</option>
+                                <option th:each="inv : ${unpaidInvoices}" th:value="${inv.id}"
+                                        th:data-amount="${inv.totalAmount}"
+                                        th:text="${inv.invoiceNumber} + ' - ' + ${inv.customer.name} + ' (' + ${currencySymbol} + ${inv.totalAmount} + ')'">Invoice</option>
+                            </select>
+                            <div class="form-text small">Selecting an invoice automatically marks it as PAID upon recording.</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Payment Amount (<span th:text="${currencySymbol}">$</span>) <span class="text-danger">*</span></label>
+                            <input type="number" step="0.01" min="0.01" class="form-control" th:field="*{amount}" id="payAmount" required/>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Payment Method <span class="text-danger">*</span></label>
+                            <select class="form-select" th:field="*{paymentMethod}" id="payMethod" required>
+                                <option th:each="m : ${paymentMethods}" th:value="${m.name()}" th:text="${m.label}">Credit Card</option>
+                            </select>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Status</label>
+                            <select class="form-select" th:field="*{status}" id="payStatus">
+                                <option value="SUCCESS">Successful / Cleared</option>
+                                <option value="PENDING">Pending / Processing</option>
+                            </select>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Notes / Reference</label>
+                            <input type="text" class="form-control" th:field="*{notes}" placeholder="e.g. Stripe charge ch_83910, Bank wire ref #9981"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-top px-4 py-3 bg-light">
+                    <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary-billora px-4">
+                        <i class="bi bi-check-lg me-1"></i> Record Payment
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/scripts :: scripts}"></div>
+<script th:if="${openModal}">
+    document.addEventListener("DOMContentLoaded", function () {
+        var modalEl = document.getElementById('paymentModal');
+        if (modalEl) {
+            new bootstrap.Modal(modalEl).show();
+        }
+    });
+</script>
+<script>
+    function openRecordPaymentModal() {
+        document.getElementById('payCustomer').value = '';
+        document.getElementById('payInvoice').value = '';
+        document.getElementById('payAmount').value = '49.00';
+        document.getElementById('payMethod').value = 'CREDIT_CARD';
+        document.getElementById('payStatus').value = 'SUCCESS';
+        new bootstrap.Modal(document.getElementById('paymentModal')).show();
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        var invoiceSelect = document.getElementById('payInvoice');
+        var amountInput = document.getElementById('payAmount');
+        if (invoiceSelect && amountInput) {
+            invoiceSelect.addEventListener('change', function () {
+                var opt = invoiceSelect.options[invoiceSelect.selectedIndex];
+                var amt = opt.getAttribute('data-amount');
+                if (amt) {
+                    amountInput.value = amt;
+                }
+            });
+        }
+    });
+</script>
+</body>
+</html>
