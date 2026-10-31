@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="en">
+<head th:replace="~{fragments/head :: head('Access Restricted')}">
+    <title>Access Restricted | Billora</title>
+</head>
+<body class="bg-light d-flex align-items-center justify-content-center min-vh-100 p-4">
+    <div class="billora-card p-5 text-center shadow-lg" style="max-width: 540px;">
+        <div class="stat-icon-wrapper stat-icon-amber mx-auto mb-4" style="width: 72px; height: 72px; font-size: 2.25rem;">
+            <i class="bi bi-shield-slash"></i>
+        </div>
+        <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-3 py-1 fw-bold mb-2">403 RESTRICTED ACCESS</span>
+        <h2 class="fw-bold mb-2 text-dark">Insufficient Role Privileges</h2>
+        <p class="text-muted mb-4 small">
+            You do not have the required role privileges to view this section. This module is restricted to authorized personnel (ADMIN or STAFF).
+        </p>
+
+        <div class="p-3 bg-light rounded-3 text-start mb-4 border small">
+            <div class="d-flex justify-content-between mb-1">
+                <span class="text-muted">Signed In As:</span>
+                <span class="fw-semibold text-dark" sec:authentication="name">User</span>
+            </div>
+            <div class="d-flex justify-content-between">
+                <span class="text-muted">Active Roles:</span>
+                <span class="fw-semibold text-primary" sec:authentication="principal.authorities">[ROLE_CUSTOMER]</span>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-center gap-2">
+            <a th:href="@{/dashboard}" class="btn btn-primary-billora px-4">
+                <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+            </a>
+            <a th:href="@{/logout}" class="btn btn-outline-secondary px-3">
+                Sign Out
+            </a>
+        </div>
+    </div>
+</body>
+</html>

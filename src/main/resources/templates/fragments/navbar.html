@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <body>
 <nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top py-3">
     <div class="container">
@@ -32,15 +32,32 @@
                 </li>
             </ul>
 
-            <div class="d-flex align-items-center gap-3">
-                <a th:href="@{/dashboard}" class="btn btn-outline-secondary px-3 py-2 rounded-3 fw-semibold d-none d-sm-inline-flex align-items-center gap-2">
+            <!-- Auth Buttons (Anonymous) -->
+            <div class="d-flex align-items-center gap-2" sec:authorize="!isAuthenticated()">
+                <a th:href="@{/login}" class="btn btn-outline-secondary px-3 py-2 rounded-3 fw-semibold d-inline-flex align-items-center gap-2">
+                    <i class="bi bi-box-arrow-in-right"></i>
+                    <span>Sign In</span>
+                </a>
+                <a th:href="@{/register}" class="btn btn-primary-billora d-inline-flex align-items-center gap-2">
+                    <i class="bi bi-person-plus-fill"></i>
+                    <span>Get Started</span>
+                </a>
+            </div>
+
+            <!-- Auth Buttons (Authenticated) -->
+            <div class="d-flex align-items-center gap-3" sec:authorize="isAuthenticated()">
+                <a th:href="@{/dashboard}" class="btn btn-outline-primary px-3 py-2 rounded-3 fw-semibold d-inline-flex align-items-center gap-2">
                     <i class="bi bi-speedometer2"></i>
-                    <span>Live Console</span>
+                    <span>Dashboard</span>
                 </a>
-                <a th:href="@{/dashboard}" class="btn btn-primary-billora d-inline-flex align-items-center gap-2">
-                    <span>Explore Dashboard</span>
-                    <i class="bi bi-arrow-right"></i>
-                </a>
+                <div class="d-flex align-items-center gap-2">
+                    <div class="user-avatar" style="width: 34px; height: 34px; font-size: 0.8rem;" th:text="${#authentication != null and #authentication.name != null ? #strings.substring(#authentication.name, 0, 1).toUpperCase() : 'U'}">U</div>
+                    <form th:action="@{/logout}" method="post" class="m-0 p-0">
+                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Sign Out">
+                            <i class="bi bi-box-arrow-right"></i>
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
